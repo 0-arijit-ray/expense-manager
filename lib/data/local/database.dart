@@ -182,7 +182,14 @@ class AppDatabase extends _$AppDatabase {
   }
 }
 
-QueryExecutor _open() => driftDatabase(name: 'expense_manager');
+QueryExecutor _open() => driftDatabase(
+      name: 'expense_manager',
+      // Web: load the WASM sqlite3 build + drift worker shipped in web/.
+      web: DriftWebOptions(
+        sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+        driftWorker: Uri.parse('drift_worker.js'),
+      ),
+    );
 
 /// Seed list. Codepoints reference Material Icons rounded glyphs.
 final List<CategoriesCompanion> _defaultCategories = [

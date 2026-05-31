@@ -23,6 +23,11 @@ class NotificationService {
 
   Future<void> init() async {
     if (_ready) return;
+    // No web implementation for local notifications; treat as a no-op.
+    if (kIsWeb) {
+      _ready = true;
+      return;
+    }
     tz.initializeTimeZones();
     try {
       tz.setLocalLocation(tz.getLocation(await _deviceTimeZone()));
@@ -49,6 +54,7 @@ class NotificationService {
   }
 
   Future<bool> requestPermissions() async {
+    if (kIsWeb) return false;
     await init();
     final android = _plugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
@@ -76,6 +82,7 @@ class NotificationService {
     required Loan loan,
     required EmiSchedule emi,
   }) async {
+    if (kIsWeb) return;
     await init();
     final fireDate = DateTime(
       emi.dueDate.year,
@@ -102,11 +109,13 @@ class NotificationService {
   }
 
   Future<void> cancel(int id) async {
+    if (kIsWeb) return;
     await init();
     await _plugin.cancel(id: id);
   }
 
   Future<void> cancelAll() async {
+    if (kIsWeb) return;
     await init();
     await _plugin.cancelAll();
   }
