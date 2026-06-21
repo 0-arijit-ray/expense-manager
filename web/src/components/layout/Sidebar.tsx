@@ -9,7 +9,7 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  Menu,
+  X,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -166,7 +166,7 @@ export default function Sidebar({
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className="hidden lg:block h-screen sticky top-0">
+      <div className="hidden lg:block h-screen sticky top-0 shrink-0">
         {sidebarContent}
       </div>
 
@@ -180,19 +180,14 @@ export default function Sidebar({
           <div className="absolute left-0 top-0 h-full animate-slideInRight">
             {sidebarContent}
           </div>
+          <button
+            onClick={onMobileClose}
+            className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white dark:bg-gray-800 shadow-lg"
+          >
+            <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+          </button>
         </div>
       )}
-
-      {/* Mobile Hamburger Button */}
-      <button
-        onClick={() => (mobileOpen ? onMobileClose() : null)}
-        className={clsx(
-          'lg:hidden fixed top-4 left-4 z-40 p-2 rounded-xl bg-white dark:bg-gray-800 shadow-lg',
-          mobileOpen ? 'hidden' : 'block'
-        )}
-      >
-        <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-      </button>
     </>
   );
 }
