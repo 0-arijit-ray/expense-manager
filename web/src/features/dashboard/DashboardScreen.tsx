@@ -31,6 +31,7 @@ import {
   Sun,
   Moon,
   MoreVertical,
+  Home,
 } from 'lucide-react';
 import { TxnType } from '../../types';
 import type { DashboardData, SeriesPoint, CategorySlice } from '../../types';
@@ -124,9 +125,10 @@ export default function DashboardScreen() {
         <div className="flex items-center gap-2 min-w-0">
           <button
             onClick={() => navigate('/dashboard')}
-            className="sm:hidden shrink-0 w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center"
+            className="sm:hidden shrink-0 w-9 h-9 rounded-xl flex items-center justify-center"
+            style={{ backgroundColor: 'rgba(30, 111, 92, 0.1)' }}
           >
-            <img src="/favicon.svg" alt="Home" className="w-5 h-5" />
+            <Home className="w-5 h-5 text-primary" />
           </button>
           <div className="min-w-0">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white truncate">
