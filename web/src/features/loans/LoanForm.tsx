@@ -12,7 +12,7 @@ import { Calculator } from 'lucide-react';
 import { format } from 'date-fns';
 
 const schema = z.object({
-  type: z.nativeEnum(LoanType),
+  type: z.string(),
   name: z.string().min(1, 'Name is required'),
   lender: z.string().optional(),
   principal: z.string().refine((val) => {
@@ -52,13 +52,13 @@ export default function LoanForm({ loan, onClose, onSave }: LoanFormProps) {
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      type: loan?.type ?? LoanType.Home,
+      type: (loan?.type ?? LoanType.Home).toString(),
       name: loan?.name ?? '',
       lender: loan?.lender ?? '',
       principal: loan?.principal?.toString() ?? '',
       annualRate: loan?.annualRate?.toString() ?? '8.5',
       tenureMonths: loan?.tenureMonths?.toString() ?? '60',
-      dueDay: loan?.dueDay?.toString() ?? '5',
+      dueDay: (loan?.dueDay ?? 5).toString(),
       startDate: format(loan?.startDate ?? new Date(), 'yyyy-MM-dd'),
       autoPostExpense: loan?.autoPostExpense ?? true,
       autoDebit: loan?.autoDebit ?? false,
@@ -75,14 +75,14 @@ export default function LoanForm({ loan, onClose, onSave }: LoanFormProps) {
 
   const onSubmit = async (data: FormData) => {
     await createLoan({
-      type: data.type,
+      type: Number(data.type) as LoanType,
       name: data.name,
       lender: data.lender || undefined,
       principal: parseFloat(data.principal.replace(/,/g, '')),
       annualRate: parseFloat(data.annualRate),
       tenureMonths: parseInt(data.tenureMonths),
       startDate: new Date(data.startDate),
-      dueDay: parseInt(data.dueDay),
+      dueDay: Number(data.dueDay),
       autoPostExpense: data.autoPostExpense,
       autoDebit: data.autoDebit,
       alertsEnabled: data.alertsEnabled,

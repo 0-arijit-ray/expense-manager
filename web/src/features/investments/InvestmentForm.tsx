@@ -9,7 +9,7 @@ import Modal from '../../components/ui/Modal';
 import { format } from 'date-fns';
 
 const schema = z.object({
-  type: z.nativeEnum(AssetType),
+  type: z.string(),
   name: z.string().min(1, 'Name is required'),
   institution: z.string().optional(),
   investedAmount: z.string().refine((val) => {
@@ -40,7 +40,7 @@ export default function InvestmentForm({ investment, onClose, onSave }: Investme
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      type: investment?.type ?? AssetType.MutualFund,
+      type: (investment?.type ?? AssetType.MutualFund).toString(),
       name: investment?.name ?? '',
       institution: investment?.institution ?? '',
       investedAmount: investment?.investedAmount?.toString() ?? '',
@@ -61,7 +61,7 @@ export default function InvestmentForm({ investment, onClose, onSave }: Investme
 
     await upsertInvestment({
       id: investment?.id,
-      type: data.type,
+      type: Number(data.type) as AssetType,
       name: data.name,
       institution: data.institution || undefined,
       investedAmount,
