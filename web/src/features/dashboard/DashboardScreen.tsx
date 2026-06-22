@@ -31,7 +31,6 @@ import {
   Sun,
   Moon,
   MoreVertical,
-  Home,
 } from 'lucide-react';
 import { TxnType } from '../../types';
 import type { DashboardData, SeriesPoint, CategorySlice } from '../../types';
@@ -122,22 +121,13 @@ export default function DashboardScreen() {
     <div className="space-y-6 animate-fadeIn">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 min-w-0">
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="sm:hidden shrink-0 w-9 h-9 rounded-xl flex items-center justify-center"
-            style={{ backgroundColor: 'rgba(30, 111, 92, 0.1)' }}
-          >
-            <Home className="w-5 h-5 text-primary" />
-          </button>
-          <div className="min-w-0">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white truncate">
-              {getGreeting()}
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              {format(new Date(), 'EEEE, MMMM d')}
-            </p>
-          </div>
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white truncate">
+            {getGreeting()}
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            {format(new Date(), 'EEEE, MMMM d')}
+          </p>
         </div>
         {/* Desktop: inline buttons */}
         <div className="hidden sm:flex gap-2 shrink-0">
