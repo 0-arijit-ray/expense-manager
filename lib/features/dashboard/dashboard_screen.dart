@@ -7,6 +7,7 @@ import '../../core/formatters.dart';
 import '../../data/local/enums.dart';
 import '../../data/providers.dart';
 import '../../shared/widgets.dart';
+import '../../shared/widgets/app_footer.dart';
 import '../expenses/expense_form.dart';
 import '../loans/loans_providers.dart';
 import '../networth/networth_providers.dart';
@@ -94,6 +95,8 @@ class DashboardScreen extends ConsumerWidget {
             const _NetWorthMiniCard(),
             const SizedBox(height: 16),
             const _UpcomingEmisCard(),
+            const SizedBox(height: 24),
+            const AppFooter(),
           ],
         ),
       ),

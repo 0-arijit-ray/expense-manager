@@ -23,7 +23,7 @@ const schema = z.object({
     const num = parseInt(val);
     return !isNaN(num) && num >= 1;
   }, 'Interval must be at least 1'),
-  frequency: z.nativeEnum(Frequency),
+  frequency: z.string(),
   categoryId: z.string().optional(),
   nextDueDate: z.string(),
   endDate: z.string().optional(),
@@ -57,7 +57,7 @@ export default function RecurringForm({ rule, onClose, onSave }: RecurringFormPr
       title: rule?.title ?? '',
       amount: rule?.amount?.toString() ?? '',
       interval: rule?.interval?.toString() ?? '1',
-      frequency: rule?.frequency ?? Frequency.Monthly,
+      frequency: (rule?.frequency ?? Frequency.Monthly).toString(),
       categoryId: rule?.categoryId?.toString() ?? '',
       nextDueDate: format(rule?.nextDueDate ?? new Date(), 'yyyy-MM-dd'),
       endDate: rule?.endDate ? format(rule.endDate, 'yyyy-MM-dd') : '',
@@ -70,9 +70,9 @@ export default function RecurringForm({ rule, onClose, onSave }: RecurringFormPr
   );
 
   const interval = parseInt(watch('interval') || '1');
-  const frequency = watch('frequency') as Frequency;
+  const frequency = Number(watch('frequency')) as Frequency;
   const amount = parseFloat(watch('amount')?.replace(/,/g, '') || '0');
-  const type = watch('type') as TxnType;
+  const type = Number(watch('type')) as TxnType;
 
   const description = `${type === TxnType.Expense ? 'Expense' : 'Income'} of ${formatMoney(amount)}. ${describeFrequency(interval, frequency)}. Posts automatically on each due date.`;
 
@@ -81,8 +81,8 @@ export default function RecurringForm({ rule, onClose, onSave }: RecurringFormPr
       title: data.title,
       amount: parseFloat(data.amount.replace(/,/g, '')),
       categoryId: data.categoryId ? parseInt(data.categoryId) : undefined,
-      type: data.type,
-      frequency: data.frequency,
+      type: Number(data.type) as TxnType,
+      frequency: Number(data.frequency) as Frequency,
       interval: parseInt(data.interval),
       nextDueDate: new Date(data.nextDueDate),
       endDate: data.endDate ? new Date(data.endDate) : undefined,

@@ -1,0 +1,18 @@
+{
+  "name": "Ease Your Finance",
+  "short_name": "EaseYourFinance",
+  "description": "Your money, simplified. A private, offline-first personal finance app.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1A5C4F",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

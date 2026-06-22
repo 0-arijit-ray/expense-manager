@@ -9,6 +9,8 @@ import '../features/loans/loans_screen.dart';
 import '../features/networth/networth_screen.dart';
 import '../features/recurring/recurring_screen.dart';
 import '../features/settings/settings_screen.dart';
+import '../features/about/about_screen.dart';
+import '../features/contact/contact_screen.dart';
 
 final _rootKey = GlobalKey<NavigatorState>();
 
@@ -69,6 +71,16 @@ final appRouter = GoRouter(
       path: '/recurring',
       parentNavigatorKey: _rootKey,
       builder: (_, _) => const RecurringScreen(),
+    ),
+    GoRoute(
+      path: '/about',
+      parentNavigatorKey: _rootKey,
+      builder: (_, _) => const AboutScreen(),
+    ),
+    GoRoute(
+      path: '/contact',
+      parentNavigatorKey: _rootKey,
+      builder: (_, _) => const ContactScreen(),
     ),
   ],
 );

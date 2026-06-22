@@ -7,6 +7,8 @@ interface SettingsState extends AppSettings {
   setThemeMode: (mode: AppSettings['themeMode']) => void;
   setCurrencySymbol: (symbol: string, locale: string) => void;
   setRatesEndpoint: (endpoint: string) => void;
+  setAutoLabel: (label: string) => void;
+  setEmiLabel: (label: string) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -16,6 +18,8 @@ export const useSettingsStore = create<SettingsState>()(
       currencySymbol: '₹',
       locale: 'en-IN',
       ratesEndpoint: '',
+      autoLabel: 'Auto',
+      emiLabel: 'EMI',
 
       setThemeMode: (mode) => set({ themeMode: mode }),
       setCurrencySymbol: (symbol, locale) => {
@@ -23,6 +27,8 @@ export const useSettingsStore = create<SettingsState>()(
         set({ currencySymbol: symbol, locale });
       },
       setRatesEndpoint: (endpoint) => set({ ratesEndpoint: endpoint }),
+      setAutoLabel: (label) => set({ autoLabel: label }),
+      setEmiLabel: (label) => set({ emiLabel: label }),
     }),
     {
       name: 'expense-manager-settings',

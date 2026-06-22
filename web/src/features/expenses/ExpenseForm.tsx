@@ -85,7 +85,7 @@ export default function ExpenseForm({ transaction, onClose, onSave }: ExpenseFor
           amount: txnData.amount,
           categoryId: txnData.categoryId,
           type: data.type,
-          frequency: data.frequency as unknown as Frequency,
+          frequency: Number(data.frequency) as Frequency,
           interval: 1,
           nextDueDate: new Date(data.date),
           active: true,

@@ -1,5 +1,5 @@
 name: expense_manager
-description: "Personal Expense, Loan & Investment Manager"
+description: "Ease Your Finance - Your money, simplified. A private, offline-first personal finance app."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -47,6 +47,7 @@ dependencies:
   shared_preferences: ^2.5.5
   http: ^1.6.0
   uuid: ^4.5.3
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:
@@ -60,6 +61,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   drift_dev: ^2.33.0
   build_runner: ^2.15.0
+  flutter_launcher_icons: ^0.14.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -72,10 +74,14 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/logo.svg
+    - assets/logo_48x48.png
+    - assets/logo_72x72.png
+    - assets/logo_96x96.png
+    - assets/logo_144x144.png
+    - assets/logo_192x192.png
+    - assets/logo_512x512.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

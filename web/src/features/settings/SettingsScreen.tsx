@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useSettingsStore } from '../../stores/settings-store';
 import { Card, Button } from '../../components/ui';
-import { ArrowLeft, Repeat, Bell, Info, Palette, DollarSign, Link } from 'lucide-react';
+import { ArrowLeft, Repeat, Bell, Info, Palette, DollarSign, Link, Tag } from 'lucide-react';
 
 const currencies = [
   { symbol: '₹', label: 'Indian Rupee (₹)', locale: 'en-IN' },
@@ -17,9 +17,13 @@ export default function SettingsScreen() {
     themeMode,
     currencySymbol,
     ratesEndpoint,
+    autoLabel,
+    emiLabel,
     setThemeMode,
     setCurrencySymbol,
     setRatesEndpoint,
+    setAutoLabel,
+    setEmiLabel,
   } = useSettingsStore();
 
   const handleNotificationPermission = async () => {
@@ -140,6 +144,50 @@ export default function SettingsScreen() {
         </button>
       </Card>
 
+      {/* Labels */}
+      <Card padding="lg">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 bg-teal-100 dark:bg-teal-900/30 rounded-xl flex items-center justify-center">
+            <Tag className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+          </div>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Labels
+          </h2>
+        </div>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm text-gray-700 dark:text-gray-300 mb-2">
+              Auto Tag Label
+            </label>
+            <input
+              type="text"
+              value={autoLabel}
+              onChange={(e) => setAutoLabel(e.target.value)}
+              className="w-full px-4 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
+              placeholder="Auto"
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Label for recurring transactions
+            </p>
+          </div>
+          <div>
+            <label className="block text-sm text-gray-700 dark:text-gray-300 mb-2">
+              EMI Tag Label
+            </label>
+            <input
+              type="text"
+              value={emiLabel}
+              onChange={(e) => setEmiLabel(e.target.value)}
+              className="w-full px-4 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
+              placeholder="EMI"
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Label for EMI transactions
+            </p>
+          </div>
+        </div>
+      </Card>
+
       {/* Investment Rates */}
       <Card padding="lg">
         <div className="flex items-center gap-3 mb-4">
@@ -197,15 +245,15 @@ export default function SettingsScreen() {
           </h2>
         </div>
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between p-3">
             <span className="text-sm text-gray-600 dark:text-gray-400">
               App Name
             </span>
             <span className="text-sm font-medium text-gray-900 dark:text-white">
-              Expense Manager
+              Ease Your Finance
             </span>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between p-3">
             <span className="text-sm text-gray-600 dark:text-gray-400">
               Version
             </span>

@@ -90,8 +90,9 @@ export function IncomeExpenseBarChart({ data }: IncomeExpenseBarChartProps) {
         ticks: {
           color: tickColor,
           font: {
-            size: 11,
+            size: window.innerWidth < 640 ? 9 : 11,
           },
+          maxRotation: window.innerWidth < 640 ? 45 : 0,
         },
       },
       y: {
@@ -101,7 +102,7 @@ export function IncomeExpenseBarChart({ data }: IncomeExpenseBarChartProps) {
         ticks: {
           color: tickColor,
           font: {
-            size: 11,
+            size: window.innerWidth < 640 ? 9 : 11,
           },
           callback: (value: number | string) => {
             const num = typeof value === 'string' ? parseFloat(value) : value;
@@ -119,10 +120,10 @@ export function IncomeExpenseBarChart({ data }: IncomeExpenseBarChartProps) {
       <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">
         Cash Flow
       </h3>
-      <div className="h-64">
+      <div className="h-48 sm:h-56 md:h-64">
         <Bar ref={chartRef} data={chartData} options={options} />
       </div>
-      <div className="flex justify-center gap-6 mt-4">
+      <div className="flex justify-center gap-4 sm:gap-6 mt-4">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-red-500" />
           <span className="text-xs text-gray-500 dark:text-gray-400">Expense</span>
@@ -185,7 +186,7 @@ export function CategoryDonut({ data }: CategoryDonutProps) {
         <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">
           Spending by Category
         </h3>
-        <div className="h-64 flex items-center justify-center text-gray-400 dark:text-gray-500 text-sm">
+        <div className="h-48 sm:h-56 md:h-64 flex items-center justify-center text-gray-400 dark:text-gray-500 text-sm">
           No expenses yet
         </div>
       </div>
@@ -197,14 +198,14 @@ export function CategoryDonut({ data }: CategoryDonutProps) {
       <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">
         Spending by Category
       </h3>
-      <div className="h-64">
+      <div className="h-48 sm:h-56 md:h-64">
         <Doughnut ref={chartRef} data={chartData} options={options} />
       </div>
       <div className="mt-4 grid grid-cols-2 gap-2">
         {data.slice(0, 6).map((item, i) => (
           <div key={i} className="flex items-center gap-2">
             <div
-              className="w-2.5 h-2.5 rounded-full"
+              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
               style={{ backgroundColor: colors[i % colors.length] }}
             />
             <span className="text-xs text-gray-600 dark:text-gray-400 truncate">
