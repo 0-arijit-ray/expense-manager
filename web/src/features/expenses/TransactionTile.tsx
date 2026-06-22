@@ -110,7 +110,7 @@ export default function TransactionTile({ transaction, onClick, onDelete }: Tran
             e.stopPropagation();
             onDelete();
           }}
-          className="shrink-0 p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 opacity-0 group-hover:opacity-100 transition-all"
+          className="shrink-0 p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 sm:opacity-0 sm:group-hover:opacity-100 transition-all"
         >
           <Trash2 className="w-3.5 h-3.5" />
         </button>
