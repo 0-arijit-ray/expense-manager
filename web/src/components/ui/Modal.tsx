@@ -52,7 +52,7 @@ export default function Modal({
       <div
         className={clsx(
           'relative bg-white dark:bg-gray-800 w-full',
-          'max-h-[90vh] overflow-hidden flex flex-col',
+          'max-h-[90vh] flex flex-col',
           'animate-slideInUp sm:animate-fadeIn',
           'sm:rounded-2xl rounded-t-2xl shadow-2xl',
           {
