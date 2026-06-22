@@ -27,6 +27,19 @@ export class ExpenseDatabase extends Dexie {
       investments: '++id, type, currentValue',
       recurringRules: '++id, active, nextDueDate, [active+nextDueDate]',
     });
+    this.version(2).stores({
+      categories: '++id, name, type',
+    }).upgrade(async (tx) => {
+      const cats = await tx.table('categories').toArray();
+      const seen = new Set<string>();
+      for (const cat of cats) {
+        if (seen.has(cat.name)) {
+          await tx.table('categories').delete(cat.id);
+        } else {
+          seen.add(cat.name);
+        }
+      }
+    });
   }
 }
 
