@@ -129,10 +129,6 @@ class _GroupedList extends ConsumerWidget {
             itemBuilder: (context, i) {
               final day = days[i];
               final items = groups[day]!;
-              final dayTotal = items.fold<double>(
-                0,
-                (s, t) => s + (t.txn.type == TxnType.expense ? -t.txn.amount : t.txn.amount),
-              );
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -140,25 +136,12 @@ class _GroupedList extends ConsumerWidget {
                   // Day header
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          Dates.relativeDay(day),
-                          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        Text(
-                          '${dayTotal < 0 ? '-' : '+'}${Money.format(dayTotal.abs())}',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: dayTotal >= 0 ? Colors.green : Colors.red,
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      Dates.relativeDay(day),
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: Colors.grey[600],
+                      ),
                     ),
                   ),
                   // Transactions

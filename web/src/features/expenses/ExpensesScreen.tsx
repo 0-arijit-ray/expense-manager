@@ -195,24 +195,13 @@ export default function ExpensesScreen() {
           {groupedTransactions.map((group) => (
             <div key={group.date.toISOString()}>
               {/* Day Header */}
-              <div className="flex items-center justify-between px-1 mb-1.5">
-                <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-                  {isToday(group.date)
-                    ? 'Today'
-                    : isYesterday(group.date)
-                    ? 'Yesterday'
-                    : format(group.date, 'EEE, MMM d')}
-                </h3>
-                <span
-                  className={`text-xs font-medium ${
-                    group.net >= 0
-                      ? 'text-green-600 dark:text-green-400'
-                      : 'text-red-600 dark:text-red-400'
-                  }`}
-                >
-                  {group.net >= 0 ? '+' : ''}{formatMoney(group.net)}
-                </span>
-              </div>
+              <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 px-1 mb-1.5">
+                {isToday(group.date)
+                  ? 'Today'
+                  : isYesterday(group.date)
+                  ? 'Yesterday'
+                  : format(group.date, 'EEE, MMM d')}
+              </h3>
 
               {/* Transactions */}
               <Card padding="none" className="divide-y divide-gray-100 dark:divide-gray-700/50">

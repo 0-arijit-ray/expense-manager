@@ -22,7 +22,6 @@ class TransactionTile extends ConsumerWidget {
     final icon = cat != null
         ? IconData(cat.iconCodepoint, fontFamily: 'MaterialIcons')
         : Icons.receipt_long;
-    final time = '${txn.date.hour > 12 ? txn.date.hour - 12 : txn.date.hour}:${txn.date.minute.toString().padLeft(2, '0')} ${txn.date.hour >= 12 ? 'PM' : 'AM'}';
 
     final sourceLabel = switch (txn.source) {
       TxnSource.emi => settings.emiLabel,
@@ -128,26 +127,14 @@ class TransactionTile extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 8),
-            // Amount + time
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                AmountText(
-                  txn.amount,
-                  isExpense: txn.type == TxnType.expense,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13,
-                  ),
-                ),
-                Text(
-                  time,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.grey[400],
-                  ),
-                ),
-              ],
+            // Amount
+            AmountText(
+              txn.amount,
+              isExpense: txn.type == TxnType.expense,
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+              ),
             ),
           ],
         ),
