@@ -30,6 +30,7 @@ import {
   Zap,
   Sun,
   Moon,
+  MoreVertical,
 } from 'lucide-react';
 import { TxnType } from '../../types';
 import type { DashboardData, SeriesPoint, CategorySlice } from '../../types';
@@ -52,6 +53,7 @@ export default function DashboardScreen() {
   const portfolio = usePortfolioSummary();
   const [showAlerts, setShowAlerts] = useState(false);
   const [showTransactionForm, setShowTransactionForm] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const { themeMode, setThemeMode } = useSettingsStore();
 
   const toggleTheme = () => {
@@ -119,15 +121,16 @@ export default function DashboardScreen() {
     <div className="space-y-6 animate-fadeIn">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white truncate">
             {getGreeting()}
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             {format(new Date(), 'EEEE, MMMM d')}
           </p>
         </div>
-        <div className="flex gap-2">
+        {/* Desktop: inline buttons */}
+        <div className="hidden sm:flex gap-2 shrink-0">
           <Button
             size="sm"
             onClick={() => setShowTransactionForm(true)}
@@ -169,86 +172,80 @@ export default function DashboardScreen() {
                 </span>
               )}
             </Button>
-
-            {/* Alerts Dropdown */}
             {showAlerts && (
               <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setShowAlerts(false)}
-                />
-                <div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 z-50 overflow-hidden animate-slideInUp">
+                <div className="fixed inset-0 z-40" onClick={() => setShowAlerts(false)} />
+                <div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
                   <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-                      Upcoming EMIs
-                    </h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                      {upcomingEmis.length === 0
-                        ? 'No upcoming payments'
-                        : `${upcomingEmis.length} payment${upcomingEmis.length !== 1 ? 's' : ''} due in the next 60 days`}
-                    </p>
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Upcoming EMIs</h3>
                   </div>
-
-                  {upcomingEmis.length > 0 ? (
-                    <div className="max-h-72 overflow-y-auto">
-                      {upcomingEmis.map(({ emi, loan }) => (
-                        <div
-                          key={emi.id}
-                          onClick={() => {
-                            navigate(`/loans/${loan.id}`);
-                            setShowAlerts(false);
-                          }}
-                          className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors cursor-pointer border-b border-gray-100 dark:border-gray-700 last:border-0"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center">
-                              <Landmark className="w-4 h-4 text-red-600 dark:text-red-400" />
-                            </div>
-                            <div>
-                              <div className="text-sm font-medium text-gray-900 dark:text-white">
-                                {loan.name}
-                              </div>
-                              <div className="text-xs text-gray-500 dark:text-gray-400">
-                                #{emi.installmentNo} • Due{' '}
-                                {new Date(emi.dueDate).toLocaleDateString('en', {
-                                  month: 'short',
-                                  day: 'numeric',
-                                })}
-                              </div>
-                            </div>
+                  <div className="max-h-64 overflow-y-auto">
+                    {upcomingEmis.length === 0 ? (
+                      <p className="p-4 text-sm text-gray-500">No upcoming EMIs</p>
+                    ) : (
+                      upcomingEmis.map(({ emi, loan }) => (
+                        <div key={emi.id} className="px-4 py-3 flex items-center justify-between border-b border-gray-100 dark:border-gray-700/50 last:border-0">
+                          <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">{loan.name}</p>
+                            <p className="text-xs text-gray-500">EMI #{emi.installmentNo}</p>
                           </div>
-                          <div className="text-sm font-semibold text-red-600 dark:text-red-400">
-                            {formatMoney(emi.emiAmount)}
-                          </div>
+                          <span className="text-sm font-semibold text-red-600 dark:text-red-400">{formatMoney(emi.emiAmount)}</span>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="px-4 py-8 text-center">
-                      <Bell className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        All clear! No upcoming EMIs.
-                      </p>
-                    </div>
-                  )}
-
-                  {upcomingEmis.length > 0 && (
-                    <div className="px-4 py-2.5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                      <button
-                        onClick={() => {
-                          navigate('/loans');
-                          setShowAlerts(false);
-                        }}
-                        className="w-full text-sm font-medium text-primary hover:text-primary-dark transition-colors"
-                      >
-                        View all loans
-                      </button>
-                    </div>
-                  )}
+                      ))
+                    )}
+                  </div>
                 </div>
               </>
             )}
           </div>
+        </div>
+        {/* Mobile: kebab menu */}
+        <div className="relative sm:hidden shrink-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowMenu(!showMenu)}
+            className="rounded-xl"
+          >
+            <MoreVertical className="w-5 h-5" />
+          </Button>
+          {showMenu && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
+              <div className="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
+                <button
+                  onClick={() => { setShowMenu(false); setShowTransactionForm(true); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                >
+                  <Plus className="w-4 h-4" /> New transaction
+                </button>
+                <button
+                  onClick={() => { setShowMenu(false); toggleTheme(); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                >
+                  {themeMode === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                  {themeMode === 'dark' ? 'Light mode' : 'Dark mode'}
+                </button>
+                <button
+                  onClick={() => { setShowMenu(false); navigate('/settings'); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                >
+                  <Settings className="w-4 h-4" /> Settings
+                </button>
+                <button
+                  onClick={() => { setShowMenu(false); setShowAlerts(!showAlerts); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                >
+                  <Bell className="w-4 h-4" /> Alerts
+                  {upcomingEmis.length > 0 && (
+                    <span className="ml-auto w-5 h-5 bg-red-500 rounded-full text-white text-[10px] flex items-center justify-center font-medium">
+                      {upcomingEmis.length}
+                    </span>
+                  )}
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
