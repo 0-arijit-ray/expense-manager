@@ -404,6 +404,19 @@ class _RuleCard extends ConsumerWidget {
                     height: 28,
                     child: IconButton(
                       padding: EdgeInsets.zero,
+                      icon: Icon(Icons.check_circle_outline,
+                          size: 18, color: Colors.green[600]),
+                      tooltip: 'Mark as Paid',
+                      onPressed: () async {
+                        await ref.read(recurringRepoProvider).markAsPaid(rule);
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    width: 28,
+                    height: 28,
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
                       icon: const Icon(Icons.edit_outlined, size: 16),
                       onPressed: () =>
                           RecurringForm.show(context, existing: rule),

@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRecurringRules, deleteRecurringRule } from '../../db/recurring-repository';
+import { useRecurringRules, deleteRecurringRule, markAsPaid } from '../../db/recurring-repository';
 import { formatMoney } from '../../lib/formatters';
 import { describeFrequency } from '../../lib/enum-labels';
 import { TxnType } from '../../types';
 import { Card, Button, EmptyState, Badge, Tabs, ConfirmDialog } from '../../components/ui';
 import CategoryIcon from '../../components/ui/CategoryIcon';
 import RecurringForm from './RecurringForm';
-import { Plus, Repeat, ArrowLeft, Calendar, TrendingUp, TrendingDown, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Repeat, ArrowLeft, Calendar, TrendingUp, TrendingDown, Edit2, Trash2, CheckCircle } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import type { RecurringRule } from '../../types';
 
@@ -66,6 +66,10 @@ export default function RecurringScreen() {
       await deleteRecurringRule(deletingRule.id);
       setDeletingRule(null);
     }
+  };
+
+  const handleMarkPaid = async (rule: RecurringRule) => {
+    await markAsPaid(rule);
   };
 
   return (
@@ -271,6 +275,13 @@ export default function RecurringScreen() {
                     )}
                   </div>
                   <div className="flex gap-1">
+                    <button
+                      onClick={() => handleMarkPaid(rule)}
+                      className="p-1.5 text-gray-400 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
+                      title="Mark as Paid"
+                    >
+                      <CheckCircle className="w-3.5 h-3.5" />
+                    </button>
                     <button
                       onClick={() => handleEdit(rule)}
                       className="p-1.5 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
