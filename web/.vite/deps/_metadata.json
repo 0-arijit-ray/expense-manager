@@ -1,0 +1,134 @@
+{
+  "hash": "3f5bf6f6",
+  "configHash": "46fac770",
+  "lockfileHash": "05fc7692",
+  "browserHash": "248a96b3",
+  "optimized": {
+    "@hookform/resolvers/zod": {
+      "src": "../../node_modules/@hookform/resolvers/zod/dist/zod.mjs",
+      "file": "@hookform_resolvers_zod.js",
+      "fileHash": "b99acd6f",
+      "needsInterop": false
+    },
+    "@tanstack/react-query": {
+      "src": "../../node_modules/@tanstack/react-query/build/modern/index.js",
+      "file": "@tanstack_react-query.js",
+      "fileHash": "a1a0a3d4",
+      "needsInterop": false
+    },
+    "chart.js": {
+      "src": "../../node_modules/chart.js/dist/chart.js",
+      "file": "chart__js.js",
+      "fileHash": "79aa552c",
+      "needsInterop": false
+    },
+    "clsx": {
+      "src": "../../node_modules/clsx/dist/clsx.mjs",
+      "file": "clsx.js",
+      "fileHash": "e77337a4",
+      "needsInterop": false
+    },
+    "date-fns": {
+      "src": "../../node_modules/date-fns/index.js",
+      "file": "date-fns.js",
+      "fileHash": "c5284bd4",
+      "needsInterop": false
+    },
+    "dexie-react-hooks": {
+      "src": "../../node_modules/dexie-react-hooks/dist/dexie-react-hooks.mjs",
+      "file": "dexie-react-hooks.js",
+      "fileHash": "89c41980",
+      "needsInterop": false
+    },
+    "dexie": {
+      "src": "../../node_modules/dexie/import-wrapper.mjs",
+      "file": "dexie.js",
+      "fileHash": "f878d552",
+      "needsInterop": false
+    },
+    "lucide-react": {
+      "src": "../../node_modules/lucide-react/dist/esm/lucide-react.mjs",
+      "file": "lucide-react.js",
+      "fileHash": "06743c43",
+      "needsInterop": false
+    },
+    "react-chartjs-2": {
+      "src": "../../node_modules/react-chartjs-2/dist/index.js",
+      "file": "react-chartjs-2.js",
+      "fileHash": "1bd0b432",
+      "needsInterop": false
+    },
+    "react-dom": {
+      "src": "../../node_modules/react-dom/index.js",
+      "file": "react-dom.js",
+      "fileHash": "cb4f17ae",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "d29f656e",
+      "needsInterop": true
+    },
+    "react-hook-form": {
+      "src": "../../node_modules/react-hook-form/dist/index.esm.mjs",
+      "file": "react-hook-form.js",
+      "fileHash": "70cbaad5",
+      "needsInterop": false
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/react-router-dom/dist/index.mjs",
+      "file": "react-router-dom.js",
+      "fileHash": "199790d6",
+      "needsInterop": false
+    },
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "372b3d4f",
+      "needsInterop": true
+    },
+    "react/jsx-dev-runtime": {
+      "src": "../../node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "8ac04b62",
+      "needsInterop": true
+    },
+    "zod": {
+      "src": "../../node_modules/zod/index.js",
+      "file": "zod.js",
+      "fileHash": "79175caa",
+      "needsInterop": false
+    },
+    "zustand": {
+      "src": "../../node_modules/zustand/esm/index.mjs",
+      "file": "zustand.js",
+      "fileHash": "a45b8dec",
+      "needsInterop": false
+    },
+    "zustand/middleware": {
+      "src": "../../node_modules/zustand/esm/middleware.mjs",
+      "file": "zustand_middleware.js",
+      "fileHash": "bda68faf",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chart-CQonC4uy": {
+      "file": "chart-CQonC4uy.js",
+      "isDynamicEntry": false
+    },
+    "chunk-B-1-B7_t": {
+      "file": "chunk-B-1-B7_t.js",
+      "isDynamicEntry": false
+    },
+    "core-D_QZK_Gx": {
+      "file": "core-D_QZK_Gx.js",
+      "isDynamicEntry": false
+    },
+    "jsx-runtime-D51v3ApR": {
+      "file": "jsx-runtime-D51v3ApR.js",
+      "isDynamicEntry": false
+    }
+  }
+}
