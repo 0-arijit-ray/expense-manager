@@ -203,27 +203,15 @@ export default function ExpensesScreen() {
                     ? 'Yesterday'
                     : format(group.date, 'EEE, MMM d')}
                 </h3>
-                <div className="flex items-center gap-2 text-[11px]">
-                  {group.income > 0 && (
-                    <span className="text-green-500">
-                      +{formatMoney(group.income)}
-                    </span>
-                  )}
-                  {group.expense > 0 && (
-                    <span className="text-red-500">
-                      -{formatMoney(group.expense)}
-                    </span>
-                  )}
-                  <span
-                    className={`font-medium ${
-                      group.net >= 0
-                        ? 'text-green-600 dark:text-green-400'
-                        : 'text-red-600 dark:text-red-400'
-                    }`}
-                  >
-                    {group.net >= 0 ? '+' : ''}{formatMoney(group.net)}
-                  </span>
-                </div>
+                <span
+                  className={`text-xs font-medium ${
+                    group.net >= 0
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-red-600 dark:text-red-400'
+                  }`}
+                >
+                  {group.net >= 0 ? '+' : ''}{formatMoney(group.net)}
+                </span>
               </div>
 
               {/* Transactions */}

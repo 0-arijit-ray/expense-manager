@@ -129,13 +129,10 @@ class _GroupedList extends ConsumerWidget {
             itemBuilder: (context, i) {
               final day = days[i];
               final items = groups[day]!;
-              final dayIncome = items
-                  .where((t) => t.txn.type == TxnType.income)
-                  .fold(0.0, (s, t) => s + t.txn.amount);
-              final dayExpense = items
-                  .where((t) => t.txn.type == TxnType.expense)
-                  .fold(0.0, (s, t) => s + t.txn.amount);
-              final dayTotal = dayIncome - dayExpense;
+              final dayTotal = items.fold<double>(
+                0,
+                (s, t) => s + (t.txn.type == TxnType.expense ? -t.txn.amount : t.txn.amount),
+              );
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -153,41 +150,13 @@ class _GroupedList extends ConsumerWidget {
                             color: Colors.grey[600],
                           ),
                         ),
-                        Row(
-                          children: [
-                            if (dayIncome > 0)
-                              Padding(
-                                padding: const EdgeInsets.only(right: 8),
-                                child: Text(
-                                  '+${Money.format(dayIncome)}',
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            if (dayExpense > 0)
-                              Padding(
-                                padding: const EdgeInsets.only(right: 8),
-                                child: Text(
-                                  '-${Money.format(dayExpense)}',
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.red,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            Text(
-                              '${dayTotal < 0 ? '-' : '+'}${Money.format(dayTotal.abs())}',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: dayTotal >= 0 ? Colors.green : Colors.red,
-                              ),
-                            ),
-                          ],
+                        Text(
+                          '${dayTotal < 0 ? '-' : '+'}${Money.format(dayTotal.abs())}',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: dayTotal >= 0 ? Colors.green : Colors.red,
+                          ),
                         ),
                       ],
                     ),
