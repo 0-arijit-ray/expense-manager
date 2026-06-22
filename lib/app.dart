@@ -47,7 +47,7 @@ class _ExpenseManagerAppState extends ConsumerState<ExpenseManagerApp>
   Widget build(BuildContext context) {
     final themeMode = ref.watch(settingsProvider).themeMode;
     return MaterialApp.router(
-      title: 'Expense Manager',
+      title: 'Ease Your Finance',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),

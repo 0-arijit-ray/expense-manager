@@ -1,4 +1,6 @@
-# Expense Manager
+# Ease Your Finance
+
+**Your money, simplified.**
 
 A private, **offline-first** personal finance app built with Flutter (Material 3). Track daily expenses, visualize spending, manage loans & EMIs, automate recurring income/expenses, follow an investment portfolio, and see your real net worth — all stored locally on device.
 

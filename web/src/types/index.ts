@@ -194,6 +194,8 @@ export interface AppSettings {
   currencySymbol: string;
   locale: string;
   ratesEndpoint: string;
+  autoLabel: string;
+  emiLabel: string;
 }
 
 export interface RateInfo {

@@ -7,6 +7,8 @@ import {
   PiggyBank,
   TrendingUp,
   Settings,
+  Users,
+  MessageSquare,
   ChevronLeft,
   ChevronRight,
   X,
@@ -49,6 +51,13 @@ const navGroups: NavGroup[] = [
       { to: '/networth', icon: TrendingUp, label: 'Net Worth' },
     ],
   },
+  {
+    label: 'More',
+    items: [
+      { to: '/about', icon: Users, label: 'About Us' },
+      { to: '/contact', icon: MessageSquare, label: 'Contact' },
+    ],
+  },
 ];
 
 interface SidebarProps {
@@ -77,12 +86,15 @@ export default function Sidebar({
       <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-800">
         {!collapsed && (
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary-dark rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">₹</span>
+            <img src="/favicon.svg" alt="Ease Your Finance" className="w-8 h-8" />
+            <div className="flex flex-col">
+              <span className="font-bold text-sm text-gray-900 dark:text-white leading-tight">
+                Ease Your Finance
+              </span>
+              <span className="text-[10px] text-gray-500 dark:text-gray-400 leading-tight">
+                Your money, simplified
+              </span>
             </div>
-            <span className="font-semibold text-gray-900 dark:text-white">
-              Expense Manager
-            </span>
           </div>
         )}
         <button

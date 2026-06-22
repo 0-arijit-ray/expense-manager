@@ -1,5 +1,5 @@
 import { TxnSource } from '../../types';
-import { TxnSourceLabels } from '../../lib/enum-labels';
+import { useSettingsStore } from '../../stores/settings-store';
 import { clsx } from 'clsx';
 
 interface SourceBadgeProps {
@@ -7,7 +7,11 @@ interface SourceBadgeProps {
 }
 
 export default function SourceBadge({ source }: SourceBadgeProps) {
+  const { autoLabel, emiLabel } = useSettingsStore();
+  
   if (source === TxnSource.Manual) return null;
+
+  const label = source === TxnSource.EMI ? emiLabel : autoLabel;
 
   return (
     <span
@@ -18,7 +22,7 @@ export default function SourceBadge({ source }: SourceBadgeProps) {
           : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
       )}
     >
-      {TxnSourceLabels[source]}
+      {label}
     </span>
   );
 }

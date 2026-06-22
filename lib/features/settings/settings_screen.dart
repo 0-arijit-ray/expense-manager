@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/settings.dart';
 import '../../services/notification_service.dart';
+import '../../shared/widgets/app_footer.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -49,6 +50,22 @@ class SettingsScreen extends ConsumerWidget {
             onTap: () => context.push('/recurring'),
           ),
           const Divider(),
+          const _SectionLabel('Labels'),
+          ListTile(
+            leading: const Icon(Icons.label),
+            title: const Text('Auto tag label'),
+            subtitle: Text(settings.autoLabel),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => _editLabel(context, notifier, 'Auto tag label', settings.autoLabel, (v) => notifier.setAutoLabel(v)),
+          ),
+          ListTile(
+            leading: const Icon(Icons.label),
+            title: const Text('EMI tag label'),
+            subtitle: Text(settings.emiLabel),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => _editLabel(context, notifier, 'EMI tag label', settings.emiLabel, (v) => notifier.setEmiLabel(v)),
+          ),
+          const Divider(),
           const _SectionLabel('Investments'),
           ListTile(
             leading: const Icon(Icons.cloud_sync),
@@ -82,7 +99,7 @@ class SettingsScreen extends ConsumerWidget {
           const Divider(),
           const AboutListTile(
             icon: Icon(Icons.info_outline),
-            applicationName: 'Expense Manager',
+            applicationName: 'Ease Your Finance',
             applicationVersion: '1.0.0',
             aboutBoxChildren: [
               Text(
@@ -90,6 +107,10 @@ class SettingsScreen extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 24),
+          
+          // Footer
+          const AppFooter(),
+          const SizedBox(height: 16),
         ],
       ),
     );
@@ -149,6 +170,35 @@ class SettingsScreen extends ConsumerWidget {
           FilledButton(
             onPressed: () {
               notifier.setRatesEndpoint(controller.text.trim());
+              Navigator.pop(context);
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _editLabel(BuildContext context, SettingsNotifier notifier,
+      String title, String current, Function(String) onSave) async {
+    final controller = TextEditingController(text: current);
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(title),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            hintText: 'Enter label text',
+          ),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel')),
+          FilledButton(
+            onPressed: () {
+              onSave(controller.text.trim());
               Navigator.pop(context);
             },
             child: const Text('Save'),

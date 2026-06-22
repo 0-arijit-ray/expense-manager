@@ -10,6 +10,8 @@ import InvestmentsScreen from './features/investments/InvestmentsScreen';
 import NetWorthScreen from './features/networth/NetWorthScreen';
 import RecurringScreen from './features/recurring/RecurringScreen';
 import SettingsScreen from './features/settings/SettingsScreen';
+import AboutScreen from './features/about/AboutScreen';
+import ContactScreen from './features/contact/ContactScreen';
 import { useSettingsStore } from './stores/settings-store';
 import './index.css';
 
@@ -63,6 +65,8 @@ function App() {
             <Route path="/networth" element={<NetWorthScreen />} />
             <Route path="/recurring" element={<RecurringScreen />} />
             <Route path="/settings" element={<SettingsScreen />} />
+            <Route path="/about" element={<AboutScreen />} />
+            <Route path="/contact" element={<ContactScreen />} />
           </Route>
         </Routes>
       </BrowserRouter>
