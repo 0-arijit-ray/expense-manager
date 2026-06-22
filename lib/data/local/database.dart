@@ -155,7 +155,7 @@ class AppDatabase extends _$AppDatabase {
       : super(executor ?? _open());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -169,6 +169,7 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(loans, loans.autoDebit);
             await m.addColumn(transactions, transactions.recurringId);
           }
+          await _seedCategories();
         },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
@@ -176,8 +177,13 @@ class AppDatabase extends _$AppDatabase {
       );
 
   Future<void> _seedCategories() async {
+    final existing = await select(categories).get();
+    final existingNames = existing.map((c) => c.name).toSet();
     for (final c in _defaultCategories) {
-      await into(categories).insert(c);
+      final name = c.name.value;
+      if (!existingNames.contains(name)) {
+        await into(categories).insert(c);
+      }
     }
   }
 }
