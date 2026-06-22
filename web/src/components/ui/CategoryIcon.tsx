@@ -13,6 +13,12 @@ import {
   DollarSign,
   ArrowLeftRight,
   FolderOpen,
+  Briefcase,
+  Percent,
+  HomeIcon,
+  Building2,
+  Gift,
+  RotateCcw,
 } from 'lucide-react';
 
 const CATEGORY_ICONS: Record<string, LucideIcon> = {
@@ -27,6 +33,12 @@ const CATEGORY_ICONS: Record<string, LucideIcon> = {
   'EMI & Loans': Landmark,
   'Investments': TrendingUp,
   'Salary': DollarSign,
+  'Freelance': Briefcase,
+  'Interest & Dividends': Percent,
+  'Rental Income': HomeIcon,
+  'Business Income': Building2,
+  'Gift & Bonus': Gift,
+  'Refund': RotateCcw,
   'Transfer': ArrowLeftRight,
   'Others': FolderOpen,
 };

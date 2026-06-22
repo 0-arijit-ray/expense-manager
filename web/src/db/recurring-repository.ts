@@ -34,6 +34,39 @@ export async function setActive(id: number, active: boolean): Promise<void> {
   await db.recurringRules.update(id, { active });
 }
 
+export async function markAsPaid(rule: RecurringRule): Promise<void> {
+  const now = new Date();
+  const dueDate = new Date(rule.nextDueDate);
+
+  // Create transaction for this due date
+  await db.transactions.add({
+    amount: rule.amount,
+    title: rule.title,
+    categoryId: rule.categoryId,
+    date: dueDate,
+    type: rule.type,
+    source: TxnSource.Recurring,
+    recurringId: rule.id,
+    note: rule.note,
+    createdAt: now,
+  });
+
+  // Advance to next occurrence
+  const nextDue = nextOccurrence(dueDate, rule.frequency, rule.interval);
+
+  const updates: Partial<RecurringRule> = {
+    nextDueDate: nextDue,
+    lastPostedDate: dueDate,
+  };
+
+  // If end date reached, deactivate
+  if (rule.endDate && nextDue > rule.endDate) {
+    updates.active = false;
+  }
+
+  await db.recurringRules.update(rule.id!, updates);
+}
+
 export async function processRule(rule: RecurringRule, now: Date = new Date()): Promise<number> {
   if (!rule.active) return 0;
 

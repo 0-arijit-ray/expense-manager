@@ -5,7 +5,6 @@ import { useSettingsStore } from '../../stores/settings-store';
 import CategoryIcon from '../../components/ui/CategoryIcon';
 import { Trash2, HelpCircle } from 'lucide-react';
 import { clsx } from 'clsx';
-import { format } from 'date-fns';
 
 interface TransactionTileProps {
   transaction: TransactionWithCategory;
@@ -16,7 +15,6 @@ interface TransactionTileProps {
 export default function TransactionTile({ transaction, onClick, onDelete }: TransactionTileProps) {
   const isExpense = transaction.type === TxnType.Expense;
   const { autoLabel, emiLabel } = useSettingsStore();
-  const time = format(new Date(transaction.date), 'h:mm a');
 
   const sourceLabel =
     transaction.source === TxnSource.EMI
@@ -86,7 +84,7 @@ export default function TransactionTile({ transaction, onClick, onDelete }: Tran
         </div>
       </div>
 
-      {/* Amount + Time */}
+      {/* Amount */}
       <div className="text-right shrink-0">
         <div
           className={clsx(
@@ -97,9 +95,6 @@ export default function TransactionTile({ transaction, onClick, onDelete }: Tran
           )}
         >
           {isExpense ? '-' : '+'}{formatMoney(transaction.amount)}
-        </div>
-        <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
-          {time}
         </div>
       </div>
 

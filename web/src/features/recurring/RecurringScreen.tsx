@@ -1,19 +1,29 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRecurringRules, deleteRecurringRule, setActive } from '../../db/recurring-repository';
+import { useRecurringRules, deleteRecurringRule, markAsPaid } from '../../db/recurring-repository';
 import { formatMoney } from '../../lib/formatters';
-import { describeFrequency, TxnTypeLabels } from '../../lib/enum-labels';
+import { describeFrequency } from '../../lib/enum-labels';
 import { TxnType } from '../../types';
-import { Card, Button, EmptyState, Toggle, Badge, Tabs, ConfirmDialog } from '../../components/ui';
+import { Card, Button, EmptyState, Badge, Tabs, ConfirmDialog } from '../../components/ui';
 import CategoryIcon from '../../components/ui/CategoryIcon';
 import RecurringForm from './RecurringForm';
-import { Plus, Repeat, ArrowLeft, Calendar, TrendingUp, TrendingDown, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Repeat, ArrowLeft, Calendar, TrendingUp, TrendingDown, Edit2, Trash2, CheckCircle } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import type { RecurringRule } from '../../types';
 
-function getMonthlyProjection(amount: number, _frequency: number, interval: number): number {
-  const dailyAmount = amount / interval;
-  return dailyAmount * 30;
+function getMonthlyProjection(amount: number, frequency: number, interval: number): number {
+  switch (frequency) {
+    case 0: // daily
+      return (amount / interval) * 30;
+    case 1: // weekly
+      return (amount / interval) * 4.33;
+    case 2: // monthly
+      return amount / interval;
+    case 3: // yearly
+      return amount / interval / 12;
+    default:
+      return amount / interval;
+  }
 }
 
 export default function RecurringScreen() {
@@ -21,23 +31,20 @@ export default function RecurringScreen() {
   const rules = useRecurringRules();
   const [showForm, setShowForm] = useState(false);
   const [editingRule, setEditingRule] = useState<RecurringRule | null>(null);
-  const [activeTab, setActiveTab] = useState('active');
+  const [activeTab, setActiveTab] = useState('expense');
   const [deletingRule, setDeletingRule] = useState<RecurringRule | null>(null);
 
   const filteredRules = rules.filter((rule) =>
-    activeTab === 'active' ? rule.active : !rule.active
+    activeTab === 'expense'
+      ? rule.type === TxnType.Expense
+      : rule.type === TxnType.Income
   );
 
-  const activeRules = rules.filter((r) => r.active);
-  const totalMonthly = activeRules.reduce(
-    (sum, r) => sum + getMonthlyProjection(r.amount, r.frequency, r.interval),
-    0
-  );
-  const monthlyIncome = activeRules
-    .filter((r) => r.type === TxnType.Income)
+  const monthlyIncome = rules
+    .filter((r) => r.type === TxnType.Income && r.active)
     .reduce((sum, r) => sum + getMonthlyProjection(r.amount, r.frequency, r.interval), 0);
-  const monthlyExpense = activeRules
-    .filter((r) => r.type === TxnType.Expense)
+  const monthlyExpense = rules
+    .filter((r) => r.type === TxnType.Expense && r.active)
     .reduce((sum, r) => sum + getMonthlyProjection(r.amount, r.frequency, r.interval), 0);
 
   const handleEdit = (rule: RecurringRule) => {
@@ -61,8 +68,8 @@ export default function RecurringScreen() {
     }
   };
 
-  const handleToggleActive = async (id: number, active: boolean) => {
-    await setActive(id, !active);
+  const handleMarkPaid = async (rule: RecurringRule) => {
+    await markAsPaid(rule);
   };
 
   return (
@@ -82,7 +89,7 @@ export default function RecurringScreen() {
             Recurring
           </h1>
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            {activeRules.length} active · {formatMoney(totalMonthly)}/mo
+            {rules.length} rules
           </p>
         </div>
         <Button onClick={handleAdd} size="sm" className="rounded-xl">
@@ -92,50 +99,48 @@ export default function RecurringScreen() {
       </div>
 
       {/* Summary Chips */}
-      {activeRules.length > 0 && (
-        <div className="flex gap-2">
-          <div className="flex-1 p-2.5 bg-green-50 dark:bg-green-900/20 rounded-xl">
-            <div className="flex items-center gap-1.5 mb-0.5">
-              <TrendingUp className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
-              <span className="text-[10px] font-medium text-green-600 dark:text-green-400 uppercase tracking-wide">
-                Income/mo
-              </span>
-            </div>
-            <div className="text-sm font-bold text-green-700 dark:text-green-300">
-              {formatMoney(monthlyIncome)}
-            </div>
+      <div className="flex gap-2">
+        <div className="flex-1 p-2.5 bg-green-50 dark:bg-green-900/20 rounded-xl">
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <TrendingUp className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
+            <span className="text-[10px] font-medium text-green-600 dark:text-green-400 uppercase tracking-wide">
+              Income/mo
+            </span>
           </div>
-          <div className="flex-1 p-2.5 bg-red-50 dark:bg-red-900/20 rounded-xl">
-            <div className="flex items-center gap-1.5 mb-0.5">
-              <TrendingDown className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
-              <span className="text-[10px] font-medium text-red-600 dark:text-red-400 uppercase tracking-wide">
-                Expense/mo
-              </span>
-            </div>
-            <div className="text-sm font-bold text-red-700 dark:text-red-300">
-              {formatMoney(monthlyExpense)}
-            </div>
-          </div>
-          <div className="flex-1 p-2.5 bg-primary/10 rounded-xl">
-            <div className="flex items-center gap-1.5 mb-0.5">
-              <Repeat className="w-3.5 h-3.5 text-primary" />
-              <span className="text-[10px] font-medium text-primary uppercase tracking-wide">
-                Net/mo
-              </span>
-            </div>
-            <div className="text-sm font-bold text-primary-dark dark:text-primary-light">
-              {monthlyIncome - monthlyExpense >= 0 ? '+' : ''}
-              {formatMoney(monthlyIncome - monthlyExpense)}
-            </div>
+          <div className="text-sm font-bold text-green-700 dark:text-green-300">
+            {formatMoney(monthlyIncome)}
           </div>
         </div>
-      )}
+        <div className="flex-1 p-2.5 bg-red-50 dark:bg-red-900/20 rounded-xl">
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <TrendingDown className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
+            <span className="text-[10px] font-medium text-red-600 dark:text-red-400 uppercase tracking-wide">
+              Expense/mo
+            </span>
+          </div>
+          <div className="text-sm font-bold text-red-700 dark:text-red-300">
+            {formatMoney(monthlyExpense)}
+          </div>
+        </div>
+        <div className="flex-1 p-2.5 bg-primary/10 rounded-xl">
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <Repeat className="w-3.5 h-3.5 text-primary" />
+            <span className="text-[10px] font-medium text-primary uppercase tracking-wide">
+              Net/mo
+            </span>
+          </div>
+          <div className="text-sm font-bold text-primary-dark dark:text-primary-light">
+            {monthlyIncome - monthlyExpense >= 0 ? '+' : ''}
+            {formatMoney(monthlyIncome - monthlyExpense)}
+          </div>
+        </div>
+      </div>
 
       {/* Tabs */}
       <Tabs
         tabs={[
-          { id: 'active', label: 'Active' },
-          { id: 'inactive', label: 'Inactive' },
+          { id: 'expense', label: 'Expense' },
+          { id: 'income', label: 'Income' },
         ]}
         activeTab={activeTab}
         onChange={setActiveTab}
@@ -147,9 +152,9 @@ export default function RecurringScreen() {
           <EmptyState
             icon={<Repeat className="w-8 h-8" />}
             title={
-              activeTab === 'active'
-                ? 'No active rules'
-                : 'No inactive rules'
+              activeTab === 'expense'
+                ? 'No recurring expenses'
+                : 'No recurring income'
             }
             description="Add recurring income or expenses"
             action={{
@@ -167,11 +172,6 @@ export default function RecurringScreen() {
             );
             const isOverdue = daysUntilDue < 0;
             const isDueSoon = daysUntilDue >= 0 && daysUntilDue <= 3;
-            const monthlyAmount = getMonthlyProjection(
-              rule.amount,
-              rule.frequency,
-              rule.interval
-            );
 
             return (
               <Card key={rule.id} padding="sm" className="overflow-hidden">
@@ -215,14 +215,9 @@ export default function RecurringScreen() {
                       <h3 className="font-semibold text-sm text-gray-900 dark:text-white truncate">
                         {rule.title}
                       </h3>
-                      <Badge
-                        variant={
-                          rule.type === TxnType.Income ? 'success' : 'danger'
-                        }
-                        size="sm"
-                      >
-                        {TxnTypeLabels[rule.type]}
-                      </Badge>
+                      {!rule.active && (
+                        <Badge variant="default" size="sm">Paused</Badge>
+                      )}
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -244,16 +239,7 @@ export default function RecurringScreen() {
                     <div className="text-sm font-bold text-gray-900 dark:text-white">
                       {formatMoney(rule.amount)}
                     </div>
-                    <div className="text-[10px] text-gray-400 dark:text-gray-500">
-                      ~{formatMoney(monthlyAmount)}/mo
-                    </div>
                   </div>
-
-                  {/* Toggle */}
-                  <Toggle
-                    checked={rule.active}
-                    onChange={() => rule.id && handleToggleActive(rule.id, rule.active)}
-                  />
                 </div>
 
                 {/* Bottom Row: Due Date + Actions */}
@@ -289,6 +275,13 @@ export default function RecurringScreen() {
                     )}
                   </div>
                   <div className="flex gap-1">
+                    <button
+                      onClick={() => handleMarkPaid(rule)}
+                      className="p-1.5 text-gray-400 hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
+                      title="Mark as Paid"
+                    >
+                      <CheckCircle className="w-3.5 h-3.5" />
+                    </button>
                     <button
                       onClick={() => handleEdit(rule)}
                       className="p-1.5 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"

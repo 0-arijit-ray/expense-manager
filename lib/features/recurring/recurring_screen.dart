@@ -22,19 +22,48 @@ double _monthlyProjection(double amount, Frequency freq, int interval) {
   }
 }
 
-class RecurringScreen extends ConsumerWidget {
+class RecurringScreen extends ConsumerStatefulWidget {
   const RecurringScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<RecurringScreen> createState() => _RecurringScreenState();
+}
+
+class _RecurringScreenState extends ConsumerState<RecurringScreen>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final rulesAsync = ref.watch(recurringRulesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Recurring')),
+      appBar: AppBar(
+        title: const Text('Recurring'),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: 'Expense'),
+            Tab(text: 'Income'),
+          ],
+        ),
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => RecurringForm.show(context),
         icon: const Icon(Icons.add),
-        label: const Text('Add recurring'),
+        label: const Text('Add'),
       ),
       body: rulesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -45,7 +74,7 @@ class RecurringScreen extends ConsumerWidget {
               icon: Icons.repeat,
               title: 'No recurring entries',
               message:
-                  'Automate salary, rent, subscriptions and SIPs. They post on their own and show up across the app.',
+                  'Automate salary, rent, subscriptions and SIPs.',
               action: FilledButton.icon(
                 onPressed: () => RecurringForm.show(context),
                 icon: const Icon(Icons.add),
@@ -54,9 +83,7 @@ class RecurringScreen extends ConsumerWidget {
             );
           }
 
-          // Summary
-          final activeRules =
-              rules.where((r) => r.rule.active).toList();
+          final activeRules = rules.where((r) => r.rule.active).toList();
           final monthlyIncome = activeRules
               .where((r) => r.rule.type == TxnType.income)
               .fold(0.0, (sum, r) => sum + _monthlyProjection(r.rule.amount, r.rule.frequency, r.rule.interval));
@@ -64,23 +91,80 @@ class RecurringScreen extends ConsumerWidget {
               .where((r) => r.rule.type == TxnType.expense)
               .fold(0.0, (sum, r) => sum + _monthlyProjection(r.rule.amount, r.rule.frequency, r.rule.interval));
 
-          return ListView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
+          return Column(
             children: [
-              // Summary row
-              if (activeRules.isNotEmpty) ...[
-                _SummaryRow(
-                  income: monthlyIncome,
-                  expense: monthlyExpense,
+              // Summary
+              if (activeRules.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  child: _SummaryRow(
+                    income: monthlyIncome,
+                    expense: monthlyExpense,
+                  ),
                 ),
-                const SizedBox(height: 12),
-              ],
-              for (final r in rules)
-                _RuleCard(item: r),
+              // Tab content
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _RuleList(
+                      rules: rules
+                          .where((r) => r.rule.type == TxnType.expense)
+                          .toList(),
+                    ),
+                    _RuleList(
+                      rules: rules
+                          .where((r) => r.rule.type == TxnType.income)
+                          .toList(),
+                    ),
+                  ],
+                ),
+              ),
             ],
           );
         },
       ),
+    );
+  }
+}
+
+class _RuleList extends ConsumerWidget {
+  final List<RecurringWithCategory> rules;
+  const _RuleList({required this.rules});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (rules.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.repeat, size: 48, color: Colors.grey[400]),
+              const SizedBox(height: 12),
+              Text(
+                'No rules yet',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[600],
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Tap + to add one',
+                style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 96),
+      itemCount: rules.length,
+      itemBuilder: (context, i) => _RuleCard(item: rules[i]),
     );
   }
 }
@@ -96,19 +180,11 @@ class _SummaryRow extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: _SummaryChip(
-            label: 'INCOME/mo',
-            amount: income,
-            color: Colors.green,
-          ),
+          child: _SummaryChip(label: 'INCOME/mo', amount: income, color: Colors.green),
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: _SummaryChip(
-            label: 'EXPENSE/mo',
-            amount: expense,
-            color: Colors.red,
-          ),
+          child: _SummaryChip(label: 'EXPENSE/mo', amount: expense, color: Colors.red),
         ),
         const SizedBox(width: 8),
         Expanded(
@@ -192,7 +268,6 @@ class _RuleCard extends ConsumerWidget {
     final daysUntilDue = rule.nextDueDate.difference(DateTime(now.year, now.month, now.day)).inDays;
     final isOverdue = daysUntilDue < 0;
     final isDueSoon = daysUntilDue >= 0 && daysUntilDue <= 3;
-    final monthlyAmount = _monthlyProjection(rule.amount, rule.frequency, rule.interval);
 
     return Dismissible(
       key: ValueKey(rule.id),
@@ -231,24 +306,24 @@ class _RuleCard extends ConsumerWidget {
                                     fontWeight: FontWeight.w700, fontSize: 14),
                                 overflow: TextOverflow.ellipsis),
                           ),
-                          const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                            decoration: BoxDecoration(
-                              color: isIncome
-                                  ? Colors.green.withValues(alpha: 0.1)
-                                  : Colors.red.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              isIncome ? 'INC' : 'EXP',
-                              style: TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w700,
-                                color: isIncome ? Colors.green : Colors.red,
+                          if (!rule.active) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                              decoration: BoxDecoration(
+                                color: Colors.orange.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: const Text(
+                                'PAUSED',
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.orange,
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                       const SizedBox(height: 2),
@@ -266,26 +341,12 @@ class _RuleCard extends ConsumerWidget {
                         isExpense: !isIncome,
                         style: const TextStyle(
                             fontWeight: FontWeight.w700, fontSize: 14)),
-                    Text(
-                      '~${Money.format(monthlyAmount)}/mo',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontSize: 10,
-                            color: Colors.grey,
-                          ),
-                    ),
                   ],
-                ),
-                const SizedBox(width: 8),
-                Switch(
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  value: rule.active,
-                  onChanged: (v) =>
-                      ref.read(recurringRepoProvider).setActive(rule.id, v),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            // Bottom row: due date + actions
+            // Bottom row: due date + edit
             Container(
               padding: const EdgeInsets.only(top: 8),
               decoration: BoxDecoration(
@@ -338,6 +399,19 @@ class _RuleCard extends ConsumerWidget {
                     ),
                   ],
                   const Spacer(),
+                  SizedBox(
+                    width: 28,
+                    height: 28,
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: Icon(Icons.check_circle_outline,
+                          size: 18, color: Colors.green[600]),
+                      tooltip: 'Mark as Paid',
+                      onPressed: () async {
+                        await ref.read(recurringRepoProvider).markAsPaid(rule);
+                      },
+                    ),
+                  ),
                   SizedBox(
                     width: 28,
                     height: 28,

@@ -42,6 +42,46 @@ class RecurringRepository {
         .write(RecurringRulesCompanion(active: Value(active)));
   }
 
+  /// Manually mark a rule as paid: creates a transaction for the current due
+  /// date and advances the next due date.
+  Future<void> markAsPaid(RecurringRule rule) async {
+    final due = DateTime(rule.nextDueDate.year, rule.nextDueDate.month, rule.nextDueDate.day);
+
+    await _db.transaction(() async {
+      // Create transaction
+      await _db.into(_db.transactions).insert(TransactionsCompanion.insert(
+            amount: rule.amount,
+            title: rule.title,
+            date: due,
+            categoryId: Value(rule.categoryId),
+            type: Value(rule.type),
+            source: const Value(TxnSource.recurring),
+            recurringId: Value(rule.id),
+            note: Value(rule.note),
+          ));
+
+      // Advance to next occurrence
+      final advanced = Recurrence.next(due, rule.frequency, rule.interval);
+      final updates = RecurringRulesCompanion(
+        nextDueDate: Value(advanced),
+        lastPostedDate: Value(due),
+      );
+
+      // If end date reached, deactivate
+      if (rule.endDate != null && advanced.isAfter(rule.endDate!)) {
+        await (_db.update(_db.recurringRules)..where((r) => r.id.equals(rule.id)))
+            .write(RecurringRulesCompanion(
+          nextDueDate: Value(advanced),
+          lastPostedDate: Value(due),
+          active: const Value(false),
+        ));
+      } else {
+        await (_db.update(_db.recurringRules)..where((r) => r.id.equals(rule.id)))
+            .write(updates);
+      }
+    });
+  }
+
   /// Posts any transactions a single rule owes up to [now] and advances its
   /// next due date. Returns the number of transactions created.
   Future<int> processRule(RecurringRule rule, DateTime now) async {
