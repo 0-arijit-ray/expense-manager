@@ -81,7 +81,7 @@ export default function Sidebar({
               <span className="text-white font-bold text-sm">₹</span>
             </div>
             <span className="font-semibold text-gray-900 dark:text-white">
-              ExpenseManager
+              Expense Manager
             </span>
           </div>
         )}
