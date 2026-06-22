@@ -2,9 +2,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { Investment } from '../../types';
-import { AssetType } from '../../types';
-import { AssetTypeLabels } from '../../lib/enum-labels';
+import { AssetType, Frequency } from '../../types';
+import { AssetTypeLabels, FrequencyLabels } from '../../lib/enum-labels';
 import { upsertInvestment } from '../../db/investment-repository';
+import { upsertRecurringRule } from '../../db/recurring-repository';
 import Modal from '../../components/ui/Modal';
 import { format } from 'date-fns';
 
@@ -22,6 +23,7 @@ const schema = z.object({
   startDate: z.string().optional(),
   maturityDate: z.string().optional(),
   note: z.string().optional(),
+  frequency: z.string().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -50,6 +52,7 @@ export default function InvestmentForm({ investment, onClose, onSave }: Investme
       startDate: investment?.startDate ? format(investment.startDate, 'yyyy-MM-dd') : '',
       maturityDate: investment?.maturityDate ? format(investment.maturityDate, 'yyyy-MM-dd') : '',
       note: investment?.note ?? '',
+      frequency: '',
     },
   });
 
@@ -72,6 +75,20 @@ export default function InvestmentForm({ investment, onClose, onSave }: Investme
       maturityDate: data.maturityDate ? new Date(data.maturityDate) : undefined,
       note: data.note || undefined,
     });
+
+    // Create recurring rule if frequency is selected (only for new investments)
+    if (data.frequency && !investment) {
+      await upsertRecurringRule({
+        title: `SIP: ${data.name}`,
+        amount: investedAmount,
+        type: 'expense' as any,
+        frequency: Number(data.frequency) as Frequency,
+        interval: 1,
+        nextDueDate: data.startDate ? new Date(data.startDate) : new Date(),
+        active: true,
+        note: `Recurring investment in ${data.name}`,
+      });
+    }
 
     onSave();
   };
@@ -208,6 +225,28 @@ export default function InvestmentForm({ investment, onClose, onSave }: Investme
             />
           </div>
         </div>
+
+        {!investment && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Make it Recurring (optional)
+            </label>
+            <select
+              {...register('frequency')}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white"
+            >
+              <option value="">One-time investment</option>
+              {Object.entries(FrequencyLabels).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Set up a SIP or recurring investment
+            </p>
+          </div>
+        )}
 
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">

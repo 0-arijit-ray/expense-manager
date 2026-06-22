@@ -7,7 +7,8 @@ import { TxnType, Frequency } from '../../types';
 import { FrequencyLabels, TxnTypeLabels, describeFrequency } from '../../lib/enum-labels';
 import { formatMoney } from '../../lib/formatters';
 import { upsertRecurringRule, processRule } from '../../db/recurring-repository';
-import { useCategories } from '../../db/expense-repository';
+import { useCategoriesByType } from '../../db/expense-repository';
+import CategoryIcon from '../../components/ui/CategoryIcon';
 import Modal from '../../components/ui/Modal';
 import { Calendar } from 'lucide-react';
 import { format } from 'date-fns';
@@ -39,10 +40,10 @@ interface RecurringFormProps {
 }
 
 export default function RecurringForm({ rule, onClose, onSave }: RecurringFormProps) {
-  const categories = useCategories();
   const [selectedType, setSelectedType] = useState<TxnType>(
     rule?.type ?? TxnType.Expense
   );
+  const categories = useCategoriesByType(selectedType);
 
   const {
     register,
@@ -64,10 +65,6 @@ export default function RecurringForm({ rule, onClose, onSave }: RecurringFormPr
       note: rule?.note ?? '',
     },
   });
-
-  const filteredCategories = categories.filter(
-    (c) => c.type === selectedType || c.name === 'Others'
-  );
 
   const interval = parseInt(watch('interval') || '1');
   const frequency = Number(watch('frequency')) as Frequency;
@@ -207,20 +204,29 @@ export default function RecurringForm({ rule, onClose, onSave }: RecurringFormPr
             >
               None
             </button>
-            {filteredCategories.map((cat) => (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setValue('categoryId', cat.id?.toString() ?? '')}
-                className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
-                  watch('categoryId') === cat.id?.toString()
-                    ? 'bg-primary text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                }`}
-              >
-                {cat.name}
-              </button>
-            ))}
+            {categories.map((cat) => {
+              const catColor = `#${cat.color.toString(16).slice(-6).padStart(6, '0')}`;
+              const isSelected = watch('categoryId') === cat.id?.toString();
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setValue('categoryId', cat.id?.toString() ?? '')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
+                    isSelected
+                      ? 'bg-primary text-white'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  <CategoryIcon
+                    name={cat.name}
+                    color={isSelected ? '#ffffff' : catColor}
+                    size={14}
+                  />
+                  {cat.name}
+                </button>
+              );
+            })}
           </div>
         </div>
 

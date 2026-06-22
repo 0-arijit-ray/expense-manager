@@ -36,6 +36,9 @@ class _InvestmentFormState extends ConsumerState<InvestmentForm> {
   late final TextEditingController _note;
   late AssetType _type;
   DateTime? _maturity;
+  Frequency? _frequency;
+  int _interval = 1;
+  DateTime? _nextDueDate;
 
   @override
   void initState() {
@@ -85,6 +88,22 @@ class _InvestmentFormState extends ConsumerState<InvestmentForm> {
       updatedAt: Value(DateTime.now()),
     );
     await ref.read(investmentRepoProvider).upsert(companion);
+    
+    // Create recurring rule if frequency is selected (only for new investments)
+    if (_frequency != null && widget.existing == null) {
+      await ref.read(recurringRepoProvider).upsert(RecurringRulesCompanion(
+        title: Value('SIP: ${_name.text.trim()}'),
+        amount: Value(invested),
+        type: const Value(TxnType.expense),
+        categoryId: const Value.absent(),
+        frequency: Value(_frequency!),
+        interval: Value(_interval),
+        nextDueDate: Value(_nextDueDate ?? DateTime.now()),
+        active: const Value(true),
+        note: Value('Recurring investment in ${_name.text.trim()}'),
+      ));
+    }
+    
     if (mounted) Navigator.pop(context);
   }
 
@@ -210,6 +229,83 @@ class _InvestmentFormState extends ConsumerState<InvestmentForm> {
                   if (picked != null) setState(() => _maturity = picked);
                 },
               ),
+              if (widget.existing == null) ...[
+                const SizedBox(height: 12),
+                DropdownButtonFormField<Frequency>(
+                  initialValue: _frequency,
+                  decoration: const InputDecoration(
+                    labelText: 'Make it Recurring (optional)',
+                    helperText: 'Set up a SIP or recurring investment',
+                  ),
+                  items: [
+                    const DropdownMenuItem(
+                      value: null,
+                      child: Text('One-time investment'),
+                    ),
+                    ...Frequency.values.map((f) => DropdownMenuItem(
+                          value: f,
+                          child: Text(f.describe(1)),
+                        )),
+                  ],
+                  onChanged: (v) => setState(() {
+                    _frequency = v;
+                    if (v != null && _nextDueDate == null) {
+                      _nextDueDate = DateTime.now();
+                    }
+                  }),
+                ),
+                if (_frequency != null) ...[
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: DropdownButtonFormField<int>(
+                          initialValue: _interval,
+                          decoration: const InputDecoration(
+                            labelText: 'Every',
+                          ),
+                          items: [1, 2, 3, 4, 6, 12]
+                              .map((i) => DropdownMenuItem(
+                                    value: i,
+                                    child: Text(_frequency!.describe(i)),
+                                  ))
+                              .toList(),
+                          onChanged: (v) =>
+                              setState(() => _interval = v ?? _interval),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const Icon(Icons.event),
+                          title: const Text('Next due date'),
+                          subtitle: Text(
+                              _nextDueDate == null ? 'Not set' : Dates.day(_nextDueDate!)),
+                          trailing: _nextDueDate == null
+                              ? const Icon(Icons.chevron_right)
+                              : IconButton(
+                                  icon: const Icon(Icons.clear),
+                                  onPressed: () =>
+                                      setState(() => _nextDueDate = null),
+                                ),
+                          onTap: () async {
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate: _nextDueDate ?? DateTime.now(),
+                              firstDate: DateTime(2005),
+                              lastDate: DateTime(2100),
+                            );
+                            if (picked != null) {
+                              setState(() => _nextDueDate = picked);
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
               TextFormField(
                 controller: _note,
                 decoration: const InputDecoration(labelText: 'Note (optional)'),

@@ -10,7 +10,7 @@ import {
 } from '../../db/loan-repository';
 import { formatMoney } from '../../lib/formatters';
 import { LoanTypeLabels } from '../../lib/enum-labels';
-import { Card, Button, Badge } from '../../components/ui';
+import { Card, Button, Badge, ConfirmDialog } from '../../components/ui';
 import {
   ArrowLeft,
   Trash2,
@@ -29,6 +29,7 @@ export default function LoanDetailScreen() {
   const navigate = useNavigate();
   const schedule = useLoanSchedule(parseInt(id || '0'));
   const [loan, setLoan] = useState<Loan | undefined>();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -67,10 +68,12 @@ export default function LoanDetailScreen() {
   };
 
   const handleDelete = async () => {
-    if (confirm('Delete this loan and all its EMIs?')) {
-      await deleteLoan(loan.id!);
-      navigate('/loans');
-    }
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    await deleteLoan(loan.id!);
+    navigate('/loans');
   };
 
   const handleToggleClosed = async () => {
@@ -233,6 +236,16 @@ export default function LoanDetailScreen() {
           ))}
         </div>
       </Card>
+
+      {/* Delete Confirmation */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={confirmDelete}
+        title="Delete Loan"
+        message={`Are you sure you want to delete "${loan.name}" and all its EMIs? This action cannot be undone.`}
+        confirmLabel="Delete"
+      />
     </div>
   );
 }
