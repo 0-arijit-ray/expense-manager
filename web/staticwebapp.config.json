@@ -1,6 +1,27 @@
 {
   "routes": [
     {
+      "route": "/favicon.svg",
+      "serve": "/favicon.svg",
+      "statusCode": 200,
+      "headers": {
+        "Cache-Control": "public, max-age=604800, immutable"
+      }
+    },
+    {
+      "route": "/icons.svg",
+      "serve": "/icons.svg",
+      "statusCode": 200,
+      "headers": {
+        "Cache-Control": "public, max-age=604800, immutable"
+      }
+    },
+    {
+      "route": "/assets/*",
+      "serve": "/assets/*",
+      "statusCode": 200
+    },
+    {
       "route": "/*",
       "serve": "/index.html",
       "statusCode": 200
@@ -8,5 +29,11 @@
   ],
   "navigationFallback": {
     "rewrite": "/index.html"
+  },
+  "responseOverrides": {
+    "404": {
+      "rewrite": "/index.html",
+      "statusCode": 200
+    }
   }
 }
