@@ -13,6 +13,7 @@ import { autoProcessDueEmis } from '../../db/loan-repository';
 import { Card, Button } from '../../components/ui';
 import PeriodSelector from './PeriodSelector';
 import { IncomeExpenseBarChart, CategoryDonut } from './DashboardCharts';
+import ExpenseForm from '../expenses/ExpenseForm';
 import {
   Settings,
   Bell,
@@ -50,6 +51,7 @@ export default function DashboardScreen() {
   const upcomingEmis = useUpcomingEmis(60);
   const portfolio = usePortfolioSummary();
   const [showAlerts, setShowAlerts] = useState(false);
+  const [showTransactionForm, setShowTransactionForm] = useState(false);
   const { themeMode, setThemeMode } = useSettingsStore();
 
   const toggleTheme = () => {
@@ -304,7 +306,7 @@ export default function DashboardScreen() {
       {/* Quick Actions */}
       <div className="grid grid-cols-3 gap-3">
         <button
-          onClick={() => navigate('/expenses')}
+          onClick={() => setShowTransactionForm(true)}
           className="flex flex-col items-center gap-2 p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow"
         >
           <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
@@ -486,12 +488,23 @@ export default function DashboardScreen() {
       {/* Quick Add FAB */}
       <div className="fixed bottom-8 right-8 lg:bottom-12 lg:right-12">
         <Button
-          onClick={() => navigate('/expenses')}
+          onClick={() => setShowTransactionForm(true)}
           className="w-14 h-14 rounded-full shadow-lg hover:shadow-xl"
         >
           <Plus className="w-6 h-6" />
         </Button>
       </div>
+
+      {/* Transaction Form Modal */}
+      {showTransactionForm && (
+        <ExpenseForm
+          onClose={() => setShowTransactionForm(false)}
+          onSave={() => {
+            setShowTransactionForm(false);
+            navigate('/expenses');
+          }}
+        />
+      )}
     </div>
   );
 }

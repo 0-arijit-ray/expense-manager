@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/formatters.dart';
 import '../../core/recurrence.dart';
@@ -91,7 +92,13 @@ class _ExpenseFormState extends ConsumerState<ExpenseForm> {
             note: Value(_note.text.trim().isEmpty ? null : _note.text.trim()),
           ));
     }
-    if (mounted) Navigator.pop(context);
+    if (mounted) {
+      Navigator.pop(context);
+      // Navigate to expenses page after adding a new transaction
+      if (widget.existing == null) {
+        context.go('/expenses');
+      }
+    }
   }
 
   @override

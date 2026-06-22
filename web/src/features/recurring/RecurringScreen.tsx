@@ -4,24 +4,60 @@ import { useRecurringRules, deleteRecurringRule, setActive } from '../../db/recu
 import { formatMoney } from '../../lib/formatters';
 import { describeFrequency, TxnTypeLabels } from '../../lib/enum-labels';
 import { TxnType } from '../../types';
-import { Card, Button, EmptyState, Toggle, Badge, Tabs } from '../../components/ui';
+import { Card, Button, EmptyState, Toggle, Badge, Tabs, ConfirmDialog } from '../../components/ui';
+import CategoryIcon from '../../components/ui/CategoryIcon';
 import RecurringForm from './RecurringForm';
-import { Plus, Repeat, ArrowLeft, Calendar } from 'lucide-react';
-import { format } from 'date-fns';
+import { Plus, Repeat, ArrowLeft, Calendar, TrendingUp, TrendingDown, Edit2, Trash2 } from 'lucide-react';
+import { format, differenceInDays } from 'date-fns';
+import type { RecurringRule } from '../../types';
+
+function getMonthlyProjection(amount: number, _frequency: number, interval: number): number {
+  const dailyAmount = amount / interval;
+  return dailyAmount * 30;
+}
 
 export default function RecurringScreen() {
   const navigate = useNavigate();
   const rules = useRecurringRules();
   const [showForm, setShowForm] = useState(false);
+  const [editingRule, setEditingRule] = useState<RecurringRule | null>(null);
   const [activeTab, setActiveTab] = useState('active');
+  const [deletingRule, setDeletingRule] = useState<RecurringRule | null>(null);
 
   const filteredRules = rules.filter((rule) =>
     activeTab === 'active' ? rule.active : !rule.active
   );
 
-  const handleDelete = async (id: number) => {
-    if (confirm('Delete this recurring rule?')) {
-      await deleteRecurringRule(id);
+  const activeRules = rules.filter((r) => r.active);
+  const totalMonthly = activeRules.reduce(
+    (sum, r) => sum + getMonthlyProjection(r.amount, r.frequency, r.interval),
+    0
+  );
+  const monthlyIncome = activeRules
+    .filter((r) => r.type === TxnType.Income)
+    .reduce((sum, r) => sum + getMonthlyProjection(r.amount, r.frequency, r.interval), 0);
+  const monthlyExpense = activeRules
+    .filter((r) => r.type === TxnType.Expense)
+    .reduce((sum, r) => sum + getMonthlyProjection(r.amount, r.frequency, r.interval), 0);
+
+  const handleEdit = (rule: RecurringRule) => {
+    setEditingRule(rule);
+    setShowForm(true);
+  };
+
+  const handleAdd = () => {
+    setEditingRule(null);
+    setShowForm(true);
+  };
+
+  const handleDelete = async (rule: RecurringRule) => {
+    setDeletingRule(rule);
+  };
+
+  const confirmDelete = async () => {
+    if (deletingRule?.id) {
+      await deleteRecurringRule(deletingRule.id);
+      setDeletingRule(null);
     }
   };
 
@@ -30,9 +66,9 @@ export default function RecurringScreen() {
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className="space-y-4 animate-fadeIn">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         <Button
           variant="ghost"
           size="sm"
@@ -42,18 +78,58 @@ export default function RecurringScreen() {
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">
             Recurring
           </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            {rules.length} rules
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            {activeRules.length} active · {formatMoney(totalMonthly)}/mo
           </p>
         </div>
-        <Button onClick={() => setShowForm(true)} className="rounded-xl">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Rule
+        <Button onClick={handleAdd} size="sm" className="rounded-xl">
+          <Plus className="w-4 h-4 mr-1" />
+          Add
         </Button>
       </div>
+
+      {/* Summary Chips */}
+      {activeRules.length > 0 && (
+        <div className="flex gap-2">
+          <div className="flex-1 p-2.5 bg-green-50 dark:bg-green-900/20 rounded-xl">
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <TrendingUp className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
+              <span className="text-[10px] font-medium text-green-600 dark:text-green-400 uppercase tracking-wide">
+                Income/mo
+              </span>
+            </div>
+            <div className="text-sm font-bold text-green-700 dark:text-green-300">
+              {formatMoney(monthlyIncome)}
+            </div>
+          </div>
+          <div className="flex-1 p-2.5 bg-red-50 dark:bg-red-900/20 rounded-xl">
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <TrendingDown className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
+              <span className="text-[10px] font-medium text-red-600 dark:text-red-400 uppercase tracking-wide">
+                Expense/mo
+              </span>
+            </div>
+            <div className="text-sm font-bold text-red-700 dark:text-red-300">
+              {formatMoney(monthlyExpense)}
+            </div>
+          </div>
+          <div className="flex-1 p-2.5 bg-primary/10 rounded-xl">
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <Repeat className="w-3.5 h-3.5 text-primary" />
+              <span className="text-[10px] font-medium text-primary uppercase tracking-wide">
+                Net/mo
+              </span>
+            </div>
+            <div className="text-sm font-bold text-primary-dark dark:text-primary-light">
+              {monthlyIncome - monthlyExpense >= 0 ? '+' : ''}
+              {formatMoney(monthlyIncome - monthlyExpense)}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <Tabs
@@ -78,102 +154,187 @@ export default function RecurringScreen() {
             description="Add recurring income or expenses"
             action={{
               label: 'Add Recurring',
-              onClick: () => setShowForm(true),
+              onClick: handleAdd,
             }}
           />
         </Card>
       ) : (
-        <div className="space-y-4 stagger-children">
-          {filteredRules.map((rule) => (
-            <Card key={rule.id} variant="hover" padding="lg">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
+        <div className="space-y-2">
+          {filteredRules.map((rule) => {
+            const daysUntilDue = differenceInDays(
+              new Date(rule.nextDueDate),
+              new Date()
+            );
+            const isOverdue = daysUntilDue < 0;
+            const isDueSoon = daysUntilDue >= 0 && daysUntilDue <= 3;
+            const monthlyAmount = getMonthlyProjection(
+              rule.amount,
+              rule.frequency,
+              rule.interval
+            );
+
+            return (
+              <Card key={rule.id} padding="sm" className="overflow-hidden">
+                <div className="flex items-center gap-3 p-3">
+                  {/* Color Icon */}
                   <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center text-white text-sm font-semibold shadow-sm"
+                    className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
                     style={{
                       backgroundColor: rule.category
                         ? `#${rule.category.color
                             .toString(16)
                             .slice(-6)
-                            .padStart(6, '0')}`
+                            .padStart(6, '0')}18`
                         : rule.type === TxnType.Expense
-                        ? '#EF4444'
-                        : '#10B981',
+                        ? '#EF444418'
+                        : '#10B98118',
                     }}
                   >
-                    {rule.category?.name?.charAt(0) ||
-                      (rule.type === TxnType.Expense ? 'E' : 'I')}
+                    {rule.category ? (
+                      <CategoryIcon
+                        name={rule.category.name}
+                        color={`#${rule.category.color
+                            .toString(16)
+                            .slice(-6)
+                            .padStart(6, '0')}`}
+                        size={18}
+                      />
+                    ) : (
+                      <Repeat
+                        size={18}
+                        color={
+                          rule.type === TxnType.Expense ? '#EF4444' : '#10B981'
+                        }
+                      />
+                    )}
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">
-                      {rule.title}
-                    </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {describeFrequency(rule.interval, rule.frequency)}
-                      {rule.category && ` • ${rule.category.name}`}
-                    </p>
+
+                  {/* Main Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-sm text-gray-900 dark:text-white truncate">
+                        {rule.title}
+                      </h3>
+                      <Badge
+                        variant={
+                          rule.type === TxnType.Income ? 'success' : 'danger'
+                        }
+                        size="sm"
+                      >
+                        {TxnTypeLabels[rule.type]}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {describeFrequency(rule.interval, rule.frequency)}
+                      </span>
+                      {rule.category && (
+                        <>
+                          <span className="text-gray-300 dark:text-gray-600">·</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {rule.category.name}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Amount */}
+                  <div className="text-right shrink-0">
+                    <div className="text-sm font-bold text-gray-900 dark:text-white">
+                      {formatMoney(rule.amount)}
+                    </div>
+                    <div className="text-[10px] text-gray-400 dark:text-gray-500">
+                      ~{formatMoney(monthlyAmount)}/mo
+                    </div>
+                  </div>
+
+                  {/* Toggle */}
+                  <Toggle
+                    checked={rule.active}
+                    onChange={() => rule.id && handleToggleActive(rule.id, rule.active)}
+                  />
+                </div>
+
+                {/* Bottom Row: Due Date + Actions */}
+                <div className="flex items-center justify-between px-3 pb-2 pt-1 border-t border-gray-100 dark:border-gray-700/50">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`flex items-center gap-1 text-xs ${
+                        isOverdue
+                          ? 'text-red-500 font-medium'
+                          : isDueSoon
+                          ? 'text-amber-500 font-medium'
+                          : 'text-gray-500 dark:text-gray-400'
+                      }`}
+                    >
+                      <Calendar className="w-3 h-3" />
+                      {isOverdue
+                        ? `${Math.abs(daysUntilDue)}d overdue`
+                        : daysUntilDue === 0
+                        ? 'Due today'
+                        : `Due in ${daysUntilDue}d`}
+                    </div>
+                    <span className="text-gray-300 dark:text-gray-600">·</span>
+                    <span className="text-xs text-gray-400 dark:text-gray-500">
+                      {format(new Date(rule.nextDueDate), 'MMM d')}
+                    </span>
+                    {rule.endDate && (
+                      <>
+                        <span className="text-gray-300 dark:text-gray-600">·</span>
+                        <span className="text-xs text-gray-400 dark:text-gray-500">
+                          Ends {format(new Date(rule.endDate), 'MMM d, yy')}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => handleEdit(rule)}
+                      className="p-1.5 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                      title="Edit"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(rule)}
+                      className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 </div>
-                <Toggle
-                  checked={rule.active}
-                  onChange={() => rule.id && handleToggleActive(rule.id, rule.active)}
-                />
-              </div>
-
-              <div className="flex items-center justify-between mb-4 p-3 bg-gray-50 dark:bg-gray-750 rounded-xl">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">
-                    Next due:{' '}
-                    {format(new Date(rule.nextDueDate), 'MMM d, yyyy')}
-                  </span>
-                </div>
-                <div className="text-right">
-                  <Badge
-                    variant={
-                      rule.type === TxnType.Income ? 'success' : 'danger'
-                    }
-                  >
-                    {TxnTypeLabels[rule.type]}
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="text-xl font-bold text-gray-900 dark:text-white">
-                  {formatMoney(rule.amount)}
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => setShowForm(true)}
-                    className="rounded-lg"
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => rule.id && handleDelete(rule.id)}
-                    className="rounded-lg"
-                  >
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            );
+          })}
         </div>
       )}
 
       {/* Form Modal */}
       {showForm && (
         <RecurringForm
-          onClose={() => setShowForm(false)}
-          onSave={() => setShowForm(false)}
+          rule={editingRule ?? undefined}
+          onClose={() => {
+            setShowForm(false);
+            setEditingRule(null);
+          }}
+          onSave={() => {
+            setShowForm(false);
+            setEditingRule(null);
+          }}
         />
       )}
+
+      {/* Delete Confirmation */}
+      <ConfirmDialog
+        isOpen={!!deletingRule}
+        onClose={() => setDeletingRule(null)}
+        onConfirm={confirmDelete}
+        title="Delete Recurring Rule"
+        message={`Are you sure you want to delete "${deletingRule?.title}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+      />
     </div>
   );
 }

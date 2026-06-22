@@ -33,8 +33,8 @@ export class ExpenseDatabase extends Dexie {
 export const db = new ExpenseDatabase();
 
 export async function seedDefaultCategories() {
-  const count = await db.categories.count();
-  if (count > 0) return;
+  const existing = await db.categories.toArray();
+  const existingNames = new Set(existing.map((c) => c.name));
 
   const defaults: Category[] = [
     { name: 'Food & Dining', iconCodepoint: 0xe571, color: 0xffe57373, type: TxnType.Expense, keywords: 'swiggy,zomato,restaurant,cafe,food,dominos,kfc,mcdonald', isDefault: true },
@@ -52,5 +52,8 @@ export async function seedDefaultCategories() {
     { name: 'Others', iconCodepoint: 0xe58d, color: 0xff9e9e9e, type: TxnType.Expense, keywords: '', isDefault: true },
   ];
 
-  await db.categories.bulkAdd(defaults);
+  const toInsert = defaults.filter((d) => !existingNames.has(d.name));
+  if (toInsert.length > 0) {
+    await db.categories.bulkAdd(toInsert);
+  }
 }

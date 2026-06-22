@@ -4,10 +4,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { Transaction } from '../../types';
 import { TxnType, TxnSource, Frequency } from '../../types';
-import { useCategories } from '../../db/expense-repository';
-import { upsertTransaction } from '../../db/expense-repository';
+import { useCategoriesByType, upsertTransaction } from '../../db/expense-repository';
 import { upsertRecurringRule } from '../../db/recurring-repository';
 import { FrequencyLabels } from '../../lib/enum-labels';
+import CategoryIcon from '../../components/ui/CategoryIcon';
 import Modal from '../../components/ui/Modal';
 import { Calendar } from 'lucide-react';
 import { format } from 'date-fns';
@@ -34,10 +34,10 @@ interface ExpenseFormProps {
 }
 
 export default function ExpenseForm({ transaction, onClose, onSave }: ExpenseFormProps) {
-  const categories = useCategories();
   const [selectedType, setSelectedType] = useState<TxnType>(
     transaction?.type ?? TxnType.Expense
   );
+  const filteredCategories = useCategoriesByType(selectedType);
 
   const {
     register,
@@ -57,10 +57,6 @@ export default function ExpenseForm({ transaction, onClose, onSave }: ExpenseFor
       frequency: '',
     },
   });
-
-  const filteredCategories = categories.filter(
-    (c) => c.type === selectedType || c.name === 'Others'
-  );
 
   const onSubmit = async (data: FormData) => {
     const txnData = {
@@ -161,20 +157,29 @@ export default function ExpenseForm({ transaction, onClose, onSave }: ExpenseFor
             Category
           </label>
           <div className="flex flex-wrap gap-2">
-            {filteredCategories.map((cat) => (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setValue('categoryId', cat.id?.toString() ?? '')}
-                className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
-                  watch('categoryId') === cat.id?.toString()
-                    ? 'bg-primary text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                }`}
-              >
-                {cat.name}
-              </button>
-            ))}
+            {filteredCategories.map((cat) => {
+              const catColor = `#${cat.color.toString(16).slice(-6).padStart(6, '0')}`;
+              const isSelected = watch('categoryId') === cat.id?.toString();
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setValue('categoryId', cat.id?.toString() ?? '')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
+                    isSelected
+                      ? 'bg-primary text-white'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  <CategoryIcon
+                    name={cat.name}
+                    color={isSelected ? '#ffffff' : catColor}
+                    size={14}
+                  />
+                  {cat.name}
+                </button>
+              );
+            })}
           </div>
         </div>
 

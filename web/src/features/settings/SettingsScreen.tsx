@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSettingsStore } from '../../stores/settings-store';
-import { Card, Button } from '../../components/ui';
+import { Card, Button, AlertDialog } from '../../components/ui';
 import { ArrowLeft, Repeat, Bell, Info, Palette, DollarSign, Link, Tag } from 'lucide-react';
 
 const currencies = [
@@ -26,16 +27,29 @@ export default function SettingsScreen() {
     setEmiLabel,
   } = useSettingsStore();
 
+  const [alertDialog, setAlertDialog] = useState<{
+    title: string;
+    message: string;
+    variant: 'success' | 'error' | 'info';
+  } | null>(null);
+
   const handleNotificationPermission = async () => {
     if ('Notification' in window) {
       const permission = await Notification.requestPermission();
-      alert(
-        permission === 'granted'
-          ? 'Notifications enabled!'
-          : 'Notifications blocked. Please enable in browser settings.'
-      );
+      setAlertDialog({
+        title: permission === 'granted' ? 'Success' : 'Permission Denied',
+        message:
+          permission === 'granted'
+            ? 'Notifications enabled! You will receive reminders for upcoming EMIs.'
+            : 'Notifications blocked. Please enable them in your browser settings to receive EMI reminders.',
+        variant: permission === 'granted' ? 'success' : 'error',
+      });
     } else {
-      alert('Notifications not supported in this browser.');
+      setAlertDialog({
+        title: 'Not Supported',
+        message: 'Notifications are not supported in this browser.',
+        variant: 'error',
+      });
     }
   };
 
@@ -267,6 +281,15 @@ export default function SettingsScreen() {
           locally on your device.
         </p>
       </Card>
+
+      {/* Alert Dialog */}
+      <AlertDialog
+        isOpen={!!alertDialog}
+        onClose={() => setAlertDialog(null)}
+        title={alertDialog?.title ?? ''}
+        message={alertDialog?.message ?? ''}
+        variant={alertDialog?.variant ?? 'info'}
+      />
     </div>
   );
 }
