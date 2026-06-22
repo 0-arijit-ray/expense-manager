@@ -129,6 +129,13 @@ export default function DashboardScreen() {
         </div>
         <div className="flex gap-2">
           <Button
+            size="sm"
+            onClick={() => setShowTransactionForm(true)}
+            className="rounded-xl"
+          >
+            <Plus className="w-5 h-5" />
+          </Button>
+          <Button
             variant="ghost"
             size="sm"
             onClick={toggleTheme}
@@ -483,16 +490,6 @@ export default function DashboardScreen() {
             </div>
           </Card>
         )}
-      </div>
-
-      {/* Quick Add FAB */}
-      <div className="fixed bottom-8 right-8 lg:bottom-12 lg:right-12">
-        <Button
-          onClick={() => setShowTransactionForm(true)}
-          className="w-14 h-14 rounded-full shadow-lg hover:shadow-xl"
-        >
-          <Plus className="w-6 h-6" />
-        </Button>
       </div>
 
       {/* Transaction Form Modal */}

@@ -28,6 +28,11 @@ class DashboardScreen extends ConsumerWidget {
         title: const Text('Overview'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.add_circle_outline),
+            onPressed: () => ExpenseForm.show(context),
+            tooltip: 'New transaction',
+          ),
+          IconButton(
             icon: const Icon(Icons.notifications_none),
             onPressed: () => context.go('/loans'),
             tooltip: 'EMIs & alerts',
@@ -37,10 +42,6 @@ class DashboardScreen extends ConsumerWidget {
             onPressed: () => context.push('/settings'),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => ExpenseForm.show(context),
-        child: const Icon(Icons.add),
       ),
       body: RefreshIndicator(
         onRefresh: () async {
