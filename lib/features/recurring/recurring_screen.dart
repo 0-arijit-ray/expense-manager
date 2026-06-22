@@ -268,7 +268,6 @@ class _RuleCard extends ConsumerWidget {
     final daysUntilDue = rule.nextDueDate.difference(DateTime(now.year, now.month, now.day)).inDays;
     final isOverdue = daysUntilDue < 0;
     final isDueSoon = daysUntilDue >= 0 && daysUntilDue <= 3;
-    final monthlyAmount = _monthlyProjection(rule.amount, rule.frequency, rule.interval);
 
     return Dismissible(
       key: ValueKey(rule.id),
@@ -342,13 +341,6 @@ class _RuleCard extends ConsumerWidget {
                         isExpense: !isIncome,
                         style: const TextStyle(
                             fontWeight: FontWeight.w700, fontSize: 14)),
-                    Text(
-                      '~${Money.format(monthlyAmount)}/mo',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontSize: 10,
-                            color: Colors.grey,
-                          ),
-                    ),
                   ],
                 ),
               ],

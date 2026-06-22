@@ -168,11 +168,6 @@ export default function RecurringScreen() {
             );
             const isOverdue = daysUntilDue < 0;
             const isDueSoon = daysUntilDue >= 0 && daysUntilDue <= 3;
-            const monthlyAmount = getMonthlyProjection(
-              rule.amount,
-              rule.frequency,
-              rule.interval
-            );
 
             return (
               <Card key={rule.id} padding="sm" className="overflow-hidden">
@@ -239,9 +234,6 @@ export default function RecurringScreen() {
                   <div className="text-right shrink-0">
                     <div className="text-sm font-bold text-gray-900 dark:text-white">
                       {formatMoney(rule.amount)}
-                    </div>
-                    <div className="text-[10px] text-gray-400 dark:text-gray-500">
-                      ~{formatMoney(monthlyAmount)}/mo
                     </div>
                   </div>
                 </div>
