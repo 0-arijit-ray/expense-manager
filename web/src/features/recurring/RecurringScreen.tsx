@@ -11,9 +11,19 @@ import { Plus, Repeat, ArrowLeft, Calendar, TrendingUp, TrendingDown, Edit2, Tra
 import { format, differenceInDays } from 'date-fns';
 import type { RecurringRule } from '../../types';
 
-function getMonthlyProjection(amount: number, _frequency: number, interval: number): number {
-  const dailyAmount = amount / interval;
-  return dailyAmount * 30;
+function getMonthlyProjection(amount: number, frequency: number, interval: number): number {
+  switch (frequency) {
+    case 0: // daily
+      return (amount / interval) * 30;
+    case 1: // weekly
+      return (amount / interval) * 4.33;
+    case 2: // monthly
+      return amount / interval;
+    case 3: // yearly
+      return amount / interval / 12;
+    default:
+      return amount / interval;
+  }
 }
 
 export default function RecurringScreen() {
