@@ -158,46 +158,19 @@ export default function DashboardScreen() {
           >
             <Settings className="w-5 h-5" />
           </Button>
-          <div className="relative">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowAlerts(!showAlerts)}
-              className="rounded-xl relative"
-            >
-              <Bell className="w-5 h-5" />
-              {upcomingEmis.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-white text-[10px] flex items-center justify-center font-medium">
-                  {upcomingEmis.length}
-                </span>
-              )}
-            </Button>
-            {showAlerts && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setShowAlerts(false)} />
-                <div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
-                  <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Upcoming EMIs</h3>
-                  </div>
-                  <div className="max-h-64 overflow-y-auto">
-                    {upcomingEmis.length === 0 ? (
-                      <p className="p-4 text-sm text-gray-500">No upcoming EMIs</p>
-                    ) : (
-                      upcomingEmis.map(({ emi, loan }) => (
-                        <div key={emi.id} className="px-4 py-3 flex items-center justify-between border-b border-gray-100 dark:border-gray-700/50 last:border-0">
-                          <div>
-                            <p className="text-sm font-medium text-gray-900 dark:text-white">{loan.name}</p>
-                            <p className="text-xs text-gray-500">EMI #{emi.installmentNo}</p>
-                          </div>
-                          <span className="text-sm font-semibold text-red-600 dark:text-red-400">{formatMoney(emi.emiAmount)}</span>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              </>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowAlerts(!showAlerts)}
+            className="rounded-xl relative"
+          >
+            <Bell className="w-5 h-5" />
+            {upcomingEmis.length > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-white text-[10px] flex items-center justify-center font-medium">
+                {upcomingEmis.length}
+              </span>
             )}
-          </div>
+          </Button>
         </div>
         {/* Mobile: kebab menu */}
         <div className="relative sm:hidden shrink-0">
@@ -248,6 +221,60 @@ export default function DashboardScreen() {
           )}
         </div>
       </div>
+
+      {/* Alerts Dropdown - shared between mobile and desktop */}
+      {showAlerts && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setShowAlerts(false)} />
+          <div className="fixed top-16 right-4 sm:absolute sm:top-auto sm:right-0 sm:mt-2 w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
+            <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Upcoming EMIs</h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                {upcomingEmis.length === 0
+                  ? 'No upcoming payments'
+                  : `${upcomingEmis.length} payment${upcomingEmis.length !== 1 ? 's' : ''} due in the next 60 days`}
+              </p>
+            </div>
+            <div className="max-h-64 overflow-y-auto">
+              {upcomingEmis.length === 0 ? (
+                <div className="px-4 py-8 text-center">
+                  <Bell className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
+                  <p className="text-sm text-gray-500">All clear! No upcoming EMIs.</p>
+                </div>
+              ) : (
+                upcomingEmis.map(({ emi, loan }) => (
+                  <div
+                    key={emi.id}
+                    onClick={() => { navigate(`/loans/${loan.id}`); setShowAlerts(false); }}
+                    className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors cursor-pointer border-b border-gray-100 dark:border-gray-700/50 last:border-0"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center">
+                        <Landmark className="w-4 h-4 text-red-600 dark:text-red-400" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">{loan.name}</p>
+                        <p className="text-xs text-gray-500">EMI #{emi.installmentNo}</p>
+                      </div>
+                    </div>
+                    <span className="text-sm font-semibold text-red-600 dark:text-red-400">{formatMoney(emi.emiAmount)}</span>
+                  </div>
+                ))
+              )}
+            </div>
+            {upcomingEmis.length > 0 && (
+              <div className="px-4 py-2.5 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                <button
+                  onClick={() => { navigate('/loans'); setShowAlerts(false); }}
+                  className="w-full text-sm font-medium text-primary hover:text-primary-dark transition-colors"
+                >
+                  View all loans
+                </button>
+              </div>
+            )}
+          </div>
+        </>
+      )}
 
       {/* Period Selector */}
       <PeriodSelector />
