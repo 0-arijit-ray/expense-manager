@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
-import { Menu, Home } from 'lucide-react';
+import { Menu } from 'lucide-react';
 
 export default function AppLayout() {
   const [collapsed, setCollapsed] = useState(false);
@@ -55,7 +55,7 @@ export default function AppLayout() {
                 className="w-9 h-9 rounded-xl flex items-center justify-center"
                 style={{ backgroundColor: 'rgba(30, 111, 92, 0.1)' }}
               >
-                <Home className="w-5 h-5" style={{ color: 'var(--color-primary)' }} />
+                <img src="/favicon.svg" alt="Logo" className="w-5 h-5" />
               </div>
               <span className="font-semibold text-sm text-gray-900 dark:text-white">
                 Ease Your Finance
