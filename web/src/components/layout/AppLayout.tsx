@@ -2,13 +2,18 @@ import { useState, useEffect, useRef } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
-import { Menu } from 'lucide-react';
+import { useAuthStore } from '../../stores/auth-store';
+import Avatar from '../ui/Avatar';
+import LogoutConfirm from '../ui/LogoutConfirm';
+import { Menu, LogOut } from 'lucide-react';
 
 export default function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const mainRef = useRef<HTMLDivElement>(null);
+  const user = useAuthStore((s) => s.user);
 
   // Close mobile sidebar on route change
   useEffect(() => {
@@ -47,6 +52,23 @@ export default function AppLayout() {
               </span>
             </button>
             <div className="flex-1" />
+            {user && (
+              <>
+                <button
+                  onClick={() => navigate('/profile')}
+                  className="mr-1 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                >
+                  <Avatar src={user.photoURL} name={user.name} size="sm" />
+                </button>
+                <button
+                  onClick={() => setShowLogoutConfirm(true)}
+                  className="p-2 rounded-lg text-red-400 bg-red-50 dark:bg-red-900/20 dark:text-red-400 transition-colors"
+                  title="Sign out"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </>
+            )}
             <button
               onClick={() => setMobileOpen(true)}
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -61,6 +83,8 @@ export default function AppLayout() {
           <Footer />
         </div>
       </main>
+
+      <LogoutConfirm isOpen={showLogoutConfirm} onClose={() => setShowLogoutConfirm(false)} />
     </div>
   );
 }

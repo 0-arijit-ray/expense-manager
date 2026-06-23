@@ -12,11 +12,14 @@ interface AuthState {
   register: (email: string, password: string, name: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
+  updateName: (name: string) => Promise<void>;
+  updateEmail: (newEmail: string, currentPassword: string) => Promise<void>;
+  updatePassword: (newPassword: string, currentPassword: string) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       isInitialized: false,
 
@@ -44,6 +47,26 @@ export const useAuthStore = create<AuthState>()(
       logout: async () => {
         await auth.logout();
         set({ user: null, isInitialized: true });
+      },
+
+      updateName: async (name: string) => {
+        await auth.updateUserName(name);
+        const current = get().user;
+        if (current) {
+          set({ user: { ...current, name } });
+        }
+      },
+
+      updateEmail: async (newEmail: string, currentPassword: string) => {
+        await auth.updateUserEmail(newEmail, currentPassword);
+        const current = get().user;
+        if (current) {
+          set({ user: { ...current, email: newEmail } });
+        }
+      },
+
+      updatePassword: async (newPassword: string, currentPassword: string) => {
+        await auth.updateUserPassword(newPassword, currentPassword);
       },
     }),
     {

@@ -9,3 +9,5 @@ export { default as Toggle } from './Toggle';
 export { default as Tabs } from './Tabs';
 export { default as Skeleton, CardSkeleton, ListSkeleton } from './Skeleton';
 export { default as EmptyState } from './EmptyState';
+export { default as Avatar } from './Avatar';
+export { default as LogoutConfirm } from './LogoutConfirm';

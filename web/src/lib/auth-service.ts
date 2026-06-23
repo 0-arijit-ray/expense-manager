@@ -4,6 +4,10 @@ import {
   signInWithPopup,
   signOut,
   updateProfile,
+  updateEmail,
+  updatePassword,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
   type User,
 } from 'firebase/auth';
 import { auth, googleProvider } from './firebase';
@@ -63,4 +67,47 @@ export function onAuthChange(callback: (user: AuthUser | null) => void): () => v
   return auth.onAuthStateChanged((firebaseUser) => {
     callback(firebaseUser ? firebaseUserToAuthUser(firebaseUser) : null);
   });
+}
+
+/** Re-authenticate user with current password */
+export async function reauthenticate(currentPassword: string): Promise<void> {
+  const user = auth.currentUser;
+  if (!user || !user.email) throw new Error('Not authenticated');
+  const credential = EmailAuthProvider.credential(user.email, currentPassword);
+  await reauthenticateWithCredential(user, credential);
+}
+
+/** Update display name */
+export async function updateUserName(name: string): Promise<void> {
+  const user = auth.currentUser;
+  if (!user) throw new Error('Not authenticated');
+  await updateProfile(user, { displayName: name });
+}
+
+/** Update email address */
+export async function updateUserEmail(newEmail: string, currentPassword: string): Promise<void> {
+  const user = auth.currentUser;
+  if (!user) throw new Error('Not authenticated');
+  await reauthenticate(currentPassword);
+  await updateEmail(user, newEmail);
+}
+
+/** Update password */
+export async function updateUserPassword(newPassword: string, currentPassword: string): Promise<void> {
+  const user = auth.currentUser;
+  if (!user) throw new Error('Not authenticated');
+  await reauthenticate(currentPassword);
+  await updatePassword(user, newPassword);
+}
+
+/** Get user creation time */
+export function getUserCreationTime(): string | null {
+  const user = auth.currentUser;
+  return user?.metadata.creationTime || null;
+}
+
+/** Check if user signed in with Google (no password) */
+export function isGoogleUser(): boolean {
+  const user = auth.currentUser;
+  return user?.providerData.some((p) => p.providerId === 'google.com') || false;
 }

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -10,8 +11,12 @@ import {
   Users,
   MessageSquare,
   X,
+  LogOut,
 } from 'lucide-react';
 import { clsx } from 'clsx';
+import { useAuthStore } from '../../stores/auth-store';
+import Avatar from '../ui/Avatar';
+import LogoutConfirm from '../ui/LogoutConfirm';
 
 interface NavItem {
   to: string;
@@ -66,6 +71,8 @@ interface SidebarProps {
 export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const sidebarContent = (
     <div className="flex flex-col h-full w-[260px] bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800">
@@ -120,21 +127,47 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
         ))}
       </nav>
 
-      {/* Settings */}
-      <div className="p-3 border-t border-gray-200 dark:border-gray-800">
-        <NavLink
-          to="/settings"
-          onClick={onMobileClose}
-          className={clsx(
-            'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
-            location.pathname === '/settings'
-              ? 'bg-primary/10 text-primary'
-              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200'
-          )}
-        >
-          <Settings className="w-5 h-5" />
-          <span>Settings</span>
-        </NavLink>
+      {/* Bottom section */}
+      <div className="border-t border-gray-200 dark:border-gray-800">
+        {/* User Profile */}
+        {user && (
+          <div className="flex items-center gap-2 px-4 py-3">
+            <button
+              onClick={() => { navigate('/profile'); onMobileClose(); }}
+              className="flex items-center gap-3 flex-1 min-w-0 hover:opacity-80 transition-opacity text-left"
+            >
+              <Avatar src={user.photoURL} name={user.name} size="sm" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{user.name}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
+              </div>
+            </button>
+            <button
+              onClick={() => setShowLogoutConfirm(true)}
+              className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors shrink-0"
+              title="Sign out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        {/* Settings */}
+        <div className="p-3 pt-0">
+          <NavLink
+            to="/settings"
+            onClick={onMobileClose}
+            className={clsx(
+              'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
+              location.pathname === '/settings'
+                ? 'bg-primary/10 text-primary'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200'
+            )}
+          >
+            <Settings className="w-5 h-5" />
+            <span>Settings</span>
+          </NavLink>
+        </div>
       </div>
     </div>
   );
@@ -164,6 +197,8 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
           </button>
         </div>
       )}
+
+      <LogoutConfirm isOpen={showLogoutConfirm} onClose={() => setShowLogoutConfirm(false)} />
     </>
   );
 }
