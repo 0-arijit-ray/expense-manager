@@ -42,7 +42,7 @@ export default function AppLayout() {
           {/* Mobile Header */}
           <header className="lg:hidden sticky top-0 z-20 flex items-center h-14 px-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
             <button
-              onClick={() => navigate('/dashboard')}
+              onClick={() => { navigate('/dashboard'); window.scrollTo(0, 0); }}
               className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
               style={{ backgroundColor: 'rgba(30, 111, 92, 0.1)' }}
             >
