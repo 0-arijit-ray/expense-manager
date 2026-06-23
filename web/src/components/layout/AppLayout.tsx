@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
@@ -9,10 +9,16 @@ export default function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const mainRef = useRef<HTMLDivElement>(null);
 
   // Close mobile sidebar on route change
   useEffect(() => {
     setMobileOpen(false);
+  }, [location.pathname]);
+
+  // Scroll to top on route change
+  useEffect(() => {
+    mainRef.current?.scrollTo(0, 0);
   }, [location.pathname]);
 
   // Handle resize
@@ -37,12 +43,12 @@ export default function AppLayout() {
       />
 
       {/* Main Content - sticky footer layout */}
-      <main className="flex-1 overflow-y-auto">
+      <main ref={mainRef} className="flex-1 overflow-y-auto">
         <div className="min-h-screen flex flex-col">
           {/* Mobile Header */}
           <header className="lg:hidden sticky top-0 z-20 flex items-center h-14 px-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
             <button
-              onClick={() => { navigate('/dashboard'); window.scrollTo(0, 0); }}
+              onClick={() => navigate('/dashboard')}
               className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
               style={{ backgroundColor: 'rgba(30, 111, 92, 0.1)' }}
             >
