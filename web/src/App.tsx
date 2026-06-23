@@ -5,7 +5,6 @@ import AppLayout from './components/layout/AppLayout';
 import AuthGuard from './components/layout/AuthGuard';
 import LandingScreen from './features/auth/LandingScreen';
 import LoginScreen from './features/auth/LoginScreen';
-import VerifyScreen from './features/auth/VerifyScreen';
 import DashboardScreen from './features/dashboard/DashboardScreen';
 import ExpensesScreen from './features/expenses/ExpensesScreen';
 import LoansScreen from './features/loans/LoansScreen';
@@ -41,7 +40,6 @@ function ThemeSync() {
     } else if (themeMode === 'light') {
       applyTheme(false);
     } else {
-      // system
       const mq = window.matchMedia('(prefers-color-scheme: dark)');
       applyTheme(mq.matches);
 
@@ -70,7 +68,6 @@ function App() {
           {/* Public routes */}
           <Route path="/" element={<LandingScreen />} />
           <Route path="/login" element={<LoginScreen />} />
-          <Route path="/verify" element={<VerifyScreen />} />
 
           {/* Protected routes */}
           <Route element={<AuthGuard />}>

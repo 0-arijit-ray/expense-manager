@@ -2,7 +2,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from '../../stores/auth-store';
 
 export default function AuthGuard() {
-  const { user, isInitialized, isDeviceVerified } = useAuthStore();
+  const { user, isInitialized } = useAuthStore();
 
   if (!isInitialized) {
     return (
@@ -14,10 +14,6 @@ export default function AuthGuard() {
 
   if (!user) {
     return <Navigate to="/" replace />;
-  }
-
-  if (!isDeviceVerified) {
-    return <Navigate to="/verify" replace />;
   }
 
   return <Outlet />;

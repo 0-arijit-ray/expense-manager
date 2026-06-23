@@ -8,8 +8,6 @@ import {
 } from 'firebase/auth';
 import { auth, googleProvider } from './firebase';
 
-const DEVICE_KEY = 'ease-finance-device-pin';
-
 export interface AuthUser {
   id: string;
   email: string;
@@ -65,25 +63,4 @@ export function onAuthChange(callback: (user: AuthUser | null) => void): () => v
   return auth.onAuthStateChanged((firebaseUser) => {
     callback(firebaseUser ? firebaseUserToAuthUser(firebaseUser) : null);
   });
-}
-
-/** Check if device has a PIN set up */
-export function hasDevicePin(): boolean {
-  return localStorage.getItem(DEVICE_KEY) !== null;
-}
-
-/** Set up a new device PIN */
-export function setupDevicePin(pin: string): void {
-  localStorage.setItem(DEVICE_KEY, pin);
-}
-
-/** Verify device PIN */
-export function verifyDevicePin(pin: string): boolean {
-  const stored = localStorage.getItem(DEVICE_KEY);
-  return stored === pin;
-}
-
-/** Remove device PIN */
-export function clearDevicePin(): void {
-  localStorage.removeItem(DEVICE_KEY);
 }
