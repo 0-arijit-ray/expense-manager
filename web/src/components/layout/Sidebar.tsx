@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Receipt,
@@ -74,6 +74,7 @@ export default function Sidebar({
   onMobileClose,
 }: SidebarProps) {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const sidebarContent = (
     <div
@@ -85,9 +86,12 @@ export default function Sidebar({
       {/* Logo */}
       <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-800">
         {!collapsed && (
-          <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          >
             <img src="/favicon.svg" alt="Ease Your Finance" className="w-8 h-8" />
-            <div className="flex flex-col">
+            <div className="flex flex-col text-left">
               <span className="font-bold text-sm text-gray-900 dark:text-white leading-tight">
                 Ease Your Finance
               </span>
@@ -95,7 +99,7 @@ export default function Sidebar({
                 Your money, simplified
               </span>
             </div>
-          </div>
+          </button>
         )}
         <button
           onClick={onToggle}
