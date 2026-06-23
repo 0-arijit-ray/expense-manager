@@ -1,72 +1,89 @@
-/**
- * Auth service stubs — replace these with real API calls to your backend.
- *
- * Each function simulates a network request with a short delay.
- * TODO: Wire up to real backend endpoints.
- */
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+  updateProfile,
+  type User,
+} from 'firebase/auth';
+import { auth, googleProvider } from './firebase';
+
+const DEVICE_KEY = 'ease-finance-device-pin';
 
 export interface AuthUser {
   id: string;
   email: string;
   name: string;
+  photoURL: string | null;
 }
 
-export interface AuthResponse {
-  token: string;
-  user: AuthUser;
-}
-
-const DEVICE_KEY = 'ease-finance-device-pin';
-
-function delay(ms = 800) {
-  return new Promise((r) => setTimeout(r, ms));
-}
-
-/** Email + password login. Replace stub with real fetch. */
-export async function login(email: string, _password: string): Promise<AuthResponse> {
-  await delay();
-  // TODO: POST /api/auth/login
-  // For now, accept any non-empty email/password
-  if (!email) throw new Error('Email is required');
+function firebaseUserToAuthUser(user: User): AuthUser {
   return {
-    token: `mock-token-${Date.now()}`,
-    user: { id: '1', email, name: email.split('@')[0] },
+    id: user.uid,
+    email: user.email || '',
+    name: user.displayName || user.email?.split('@')[0] || 'User',
+    photoURL: user.photoURL,
   };
 }
 
-/** Email + password registration. Replace stub with real fetch. */
+/** Email + password login */
+export async function login(email: string, password: string): Promise<AuthUser> {
+  const cred = await signInWithEmailAndPassword(auth, email, password);
+  return firebaseUserToAuthUser(cred.user);
+}
+
+/** Email + password registration */
 export async function register(
   email: string,
-  _password: string,
+  password: string,
   name: string
-): Promise<AuthResponse> {
-  await delay();
-  // TODO: POST /api/auth/register
-  if (!email) throw new Error('Email is required');
-  return {
-    token: `mock-token-${Date.now()}`,
-    user: { id: '1', email, name },
-  };
+): Promise<AuthUser> {
+  const cred = await createUserWithEmailAndPassword(auth, email, password);
+  await updateProfile(cred.user, { displayName: name });
+  return firebaseUserToAuthUser(cred.user);
 }
 
-/** Check if device has a PIN set up. */
+/** Google sign-in via popup */
+export async function signInWithGoogle(): Promise<AuthUser> {
+  const cred = await signInWithPopup(auth, googleProvider);
+  return firebaseUserToAuthUser(cred.user);
+}
+
+/** Sign out */
+export async function logout(): Promise<void> {
+  await signOut(auth);
+}
+
+/** Get current Firebase user */
+export function getCurrentUser(): AuthUser | null {
+  const user = auth.currentUser;
+  return user ? firebaseUserToAuthUser(user) : null;
+}
+
+/** Subscribe to auth state changes */
+export function onAuthChange(callback: (user: AuthUser | null) => void): () => void {
+  return auth.onAuthStateChanged((firebaseUser) => {
+    callback(firebaseUser ? firebaseUserToAuthUser(firebaseUser) : null);
+  });
+}
+
+/** Check if device has a PIN set up */
 export function hasDevicePin(): boolean {
   return localStorage.getItem(DEVICE_KEY) !== null;
 }
 
-/** Set up a new device PIN (hashed in production). */
+/** Set up a new device PIN */
 export function setupDevicePin(pin: string): void {
-  // TODO: hash pin before storing
   localStorage.setItem(DEVICE_KEY, pin);
 }
 
-/** Verify device PIN. */
+/** Verify device PIN */
 export function verifyDevicePin(pin: string): boolean {
   const stored = localStorage.getItem(DEVICE_KEY);
   return stored === pin;
 }
 
-/** Remove device PIN (logout). */
+/** Remove device PIN */
 export function clearDevicePin(): void {
   localStorage.removeItem(DEVICE_KEY);
 }

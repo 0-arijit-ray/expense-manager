@@ -1,19 +1,22 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from '../../stores/auth-store';
-import { hasDevicePin } from '../../lib/auth-service';
 
 export default function AuthGuard() {
-  const { token, isInitialized } = useAuthStore();
+  const { user, isInitialized, isDeviceVerified } = useAuthStore();
 
-  if (!token) {
+  if (!isInitialized) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
     return <Navigate to="/" replace />;
   }
 
-  if (!isInitialized && hasDevicePin()) {
-    return <Navigate to="/verify" replace />;
-  }
-
-  if (!isInitialized) {
+  if (!isDeviceVerified) {
     return <Navigate to="/verify" replace />;
   }
 

@@ -17,6 +17,7 @@ import SettingsScreen from './features/settings/SettingsScreen';
 import AboutScreen from './features/about/AboutScreen';
 import ContactScreen from './features/contact/ContactScreen';
 import { useSettingsStore } from './stores/settings-store';
+import { useAuthStore } from './stores/auth-store';
 import './index.css';
 
 const queryClient = new QueryClient();
@@ -53,10 +54,17 @@ function ThemeSync() {
   return null;
 }
 
+function AuthInit() {
+  const init = useAuthStore((s) => s.init);
+  useEffect(() => { init(); }, [init]);
+  return null;
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeSync />
+      <AuthInit />
       <BrowserRouter>
         <Routes>
           {/* Public routes */}

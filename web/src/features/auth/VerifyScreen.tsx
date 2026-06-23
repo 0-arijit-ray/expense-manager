@@ -7,13 +7,13 @@ import { Fingerprint, KeyRound, ArrowLeft } from 'lucide-react';
 
 export default function VerifyScreen() {
   const navigate = useNavigate();
-  const { verifyDevice, setupDevice, needsDeviceSetup, user, logout } = useAuthStore();
+  const { verifyDevice, setupDevice, isDeviceVerified, user, logout } = useAuthStore();
   const [pin, setPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const isSetup = needsDeviceSetup || !hasDevicePin();
+  const isSetup = !isDeviceVerified && !hasDevicePin();
 
   const handleVerify = async () => {
     setError('');
