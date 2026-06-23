@@ -88,7 +88,7 @@ export default function Sidebar({
         {!collapsed && (
           <button
             onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
           >
             <img src="/favicon.svg" alt="Ease Your Finance" className="w-8 h-8" />
             <div className="flex flex-col text-left">
