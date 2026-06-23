@@ -9,8 +9,6 @@ import {
   Settings,
   Users,
   MessageSquare,
-  ChevronLeft,
-  ChevronRight,
   X,
 } from 'lucide-react';
 import { clsx } from 'clsx';
@@ -61,58 +59,31 @@ const navGroups: NavGroup[] = [
 ];
 
 interface SidebarProps {
-  collapsed: boolean;
-  onToggle: () => void;
   mobileOpen: boolean;
   onMobileClose: () => void;
 }
 
-export default function Sidebar({
-  collapsed,
-  onToggle,
-  mobileOpen,
-  onMobileClose,
-}: SidebarProps) {
+export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
 
   const sidebarContent = (
-    <div
-      className={clsx(
-        'flex flex-col h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 transition-all duration-300',
-        collapsed ? 'w-[68px]' : 'w-[260px]'
-      )}
-    >
+    <div className="flex flex-col h-full w-[260px] bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800">
       {/* Logo */}
-      <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-800">
-        {!collapsed && (
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
-          >
-            <img src="/favicon.svg" alt="Ease Your Finance" className="w-8 h-8" />
-            <div className="flex flex-col text-left">
-              <span className="font-bold text-sm text-gray-900 dark:text-white leading-tight">
-                Ease Your Finance
-              </span>
-              <span className="text-[10px] text-gray-500 dark:text-gray-400 leading-tight">
-                Your money, simplified
-              </span>
-            </div>
-          </button>
-        )}
+      <div className="flex items-center h-16 px-4 border-b border-gray-200 dark:border-gray-800">
         <button
-          onClick={onToggle}
-          className={clsx(
-            'p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors',
-            collapsed && 'mx-auto'
-          )}
+          onClick={() => navigate('/dashboard')}
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
         >
-          {collapsed ? (
-            <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-          ) : (
-            <ChevronLeft className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-          )}
+          <img src="/favicon.svg" alt="Ease Your Finance" className="w-8 h-8" />
+          <div className="flex flex-col text-left">
+            <span className="font-bold text-sm text-gray-900 dark:text-white leading-tight">
+              Ease Your Finance
+            </span>
+            <span className="text-[10px] text-gray-500 dark:text-gray-400 leading-tight">
+              Your money, simplified
+            </span>
+          </div>
         </button>
       </div>
 
@@ -120,11 +91,9 @@ export default function Sidebar({
       <nav className="flex-1 overflow-y-auto py-4 px-3">
         {navGroups.map((group) => (
           <div key={group.label} className="mb-6">
-            {!collapsed && (
-              <div className="px-3 mb-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-                {group.label}
-              </div>
-            )}
+            <div className="px-3 mb-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+              {group.label}
+            </div>
             <div className="space-y-1">
               {group.items.map((item) => {
                 const Icon = item.icon;
@@ -138,18 +107,11 @@ export default function Sidebar({
                       'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
                       isActive
                         ? 'bg-primary/10 text-primary'
-                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200',
-                      collapsed && 'justify-center px-2'
+                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200'
                     )}
-                    title={collapsed ? item.label : undefined}
                   >
-                    <Icon
-                      className={clsx(
-                        'w-5 h-5 flex-shrink-0',
-                        isActive && 'text-primary'
-                      )}
-                    />
-                    {!collapsed && <span>{item.label}</span>}
+                    <Icon className={clsx('w-5 h-5 flex-shrink-0', isActive && 'text-primary')} />
+                    <span>{item.label}</span>
                   </NavLink>
                 );
               })}
@@ -167,13 +129,11 @@ export default function Sidebar({
             'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
             location.pathname === '/settings'
               ? 'bg-primary/10 text-primary'
-              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200',
-            collapsed && 'justify-center px-2'
+              : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200'
           )}
-          title={collapsed ? 'Settings' : undefined}
         >
           <Settings className="w-5 h-5" />
-          {!collapsed && <span>Settings</span>}
+          <span>Settings</span>
         </NavLink>
       </div>
     </div>

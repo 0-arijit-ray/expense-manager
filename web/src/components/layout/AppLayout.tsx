@@ -5,7 +5,6 @@ import Footer from './Footer';
 import { Menu } from 'lucide-react';
 
 export default function AppLayout() {
-  const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -21,28 +20,14 @@ export default function AppLayout() {
     mainRef.current?.scrollTo(0, 0);
   }, [location.pathname]);
 
-  // Handle resize
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 1024) {
-        setCollapsed(true);
-      }
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-950">
       <Sidebar
-        collapsed={mobileOpen ? false : collapsed}
-        onToggle={() => setCollapsed(!collapsed)}
         mobileOpen={mobileOpen}
         onMobileClose={() => setMobileOpen(false)}
       />
 
-      {/* Main Content - sticky footer layout */}
+      {/* Main Content */}
       <main ref={mainRef} className="flex-1 overflow-y-auto">
         <div className="min-h-screen flex flex-col">
           {/* Mobile Header */}
