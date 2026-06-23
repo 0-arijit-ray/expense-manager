@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
+import { formatMoneyCompact } from '../../lib/formatters';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -106,9 +107,8 @@ export function IncomeExpenseBarChart({ data }: IncomeExpenseBarChartProps) {
           },
           callback: (value: number | string) => {
             const num = typeof value === 'string' ? parseFloat(value) : value;
-            if (num >= 100000) return `${(num / 100000).toFixed(1)}L`;
-            if (num >= 1000) return `${(num / 1000).toFixed(0)}K`;
-            return num.toString();
+            if (num === 0) return '0';
+            return formatMoneyCompact(num);
           },
         },
       },
