@@ -37,17 +37,31 @@ export function formatMoneyPrecise(num: number): string {
 export function formatMoneyCompact(num: number): string {
   const absNum = Math.abs(num);
   const sign = num < 0 ? '-' : '';
+  const isINR = currencySymbol === '₹';
 
-  if (absNum >= 10000000) {
-    return `${sign}₹${(absNum / 10000000).toFixed(1)}Cr`;
+  if (isINR) {
+    if (absNum >= 10000000) {
+      return `${sign}₹${(absNum / 10000000).toFixed(1)}Cr`;
+    }
+    if (absNum >= 100000) {
+      return `${sign}₹${(absNum / 100000).toFixed(1)}L`;
+    }
+    if (absNum >= 1000) {
+      return `${sign}₹${(absNum / 1000).toFixed(1)}K`;
+    }
+    return `${sign}₹${absNum}`;
   }
-  if (absNum >= 100000) {
-    return `${sign}₹${(absNum / 100000).toFixed(1)}L`;
+
+  if (absNum >= 1000000000) {
+    return `${sign}${currencySymbol}${(absNum / 1000000000).toFixed(1)}B`;
+  }
+  if (absNum >= 1000000) {
+    return `${sign}${currencySymbol}${(absNum / 1000000).toFixed(1)}M`;
   }
   if (absNum >= 1000) {
-    return `${sign}₹${(absNum / 1000).toFixed(1)}K`;
+    return `${sign}${currencySymbol}${(absNum / 1000).toFixed(1)}K`;
   }
-  return `${sign}₹${absNum}`;
+  return `${sign}${currencySymbol}${absNum}`;
 }
 
 export function formatMoneySigned(num: number, isExpense: boolean): string {

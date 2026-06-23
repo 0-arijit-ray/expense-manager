@@ -2,6 +2,9 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AppLayout from './components/layout/AppLayout';
+import AuthGuard from './components/layout/AuthGuard';
+import LandingScreen from './features/auth/LandingScreen';
+import LoginScreen from './features/auth/LoginScreen';
 import DashboardScreen from './features/dashboard/DashboardScreen';
 import ExpensesScreen from './features/expenses/ExpensesScreen';
 import LoansScreen from './features/loans/LoansScreen';
@@ -13,6 +16,7 @@ import SettingsScreen from './features/settings/SettingsScreen';
 import AboutScreen from './features/about/AboutScreen';
 import ContactScreen from './features/contact/ContactScreen';
 import { useSettingsStore } from './stores/settings-store';
+import { useAuthStore } from './stores/auth-store';
 import './index.css';
 
 const queryClient = new QueryClient();
@@ -36,7 +40,6 @@ function ThemeSync() {
     } else if (themeMode === 'light') {
       applyTheme(false);
     } else {
-      // system
       const mq = window.matchMedia('(prefers-color-scheme: dark)');
       applyTheme(mq.matches);
 
@@ -49,25 +52,41 @@ function ThemeSync() {
   return null;
 }
 
+function AuthInit() {
+  const init = useAuthStore((s) => s.init);
+  useEffect(() => { init(); }, [init]);
+  return null;
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeSync />
+      <AuthInit />
       <BrowserRouter>
         <Routes>
-          <Route element={<AppLayout />}>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<DashboardScreen />} />
-            <Route path="/expenses" element={<ExpensesScreen />} />
-            <Route path="/loans" element={<LoansScreen />} />
-            <Route path="/loans/:id" element={<LoanDetailScreen />} />
-            <Route path="/investments" element={<InvestmentsScreen />} />
-            <Route path="/networth" element={<NetWorthScreen />} />
-            <Route path="/recurring" element={<RecurringScreen />} />
-            <Route path="/settings" element={<SettingsScreen />} />
-            <Route path="/about" element={<AboutScreen />} />
-            <Route path="/contact" element={<ContactScreen />} />
+          {/* Public routes */}
+          <Route path="/" element={<LandingScreen />} />
+          <Route path="/login" element={<LoginScreen />} />
+
+          {/* Protected routes */}
+          <Route element={<AuthGuard />}>
+            <Route element={<AppLayout />}>
+              <Route path="/dashboard" element={<DashboardScreen />} />
+              <Route path="/expenses" element={<ExpensesScreen />} />
+              <Route path="/loans" element={<LoansScreen />} />
+              <Route path="/loans/:id" element={<LoanDetailScreen />} />
+              <Route path="/investments" element={<InvestmentsScreen />} />
+              <Route path="/networth" element={<NetWorthScreen />} />
+              <Route path="/recurring" element={<RecurringScreen />} />
+              <Route path="/settings" element={<SettingsScreen />} />
+              <Route path="/about" element={<AboutScreen />} />
+              <Route path="/contact" element={<ContactScreen />} />
+            </Route>
           </Route>
+
+          {/* Catch all */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>

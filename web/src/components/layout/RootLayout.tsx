@@ -1,10 +1,11 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Receipt,
   Landmark,
   PiggyBank,
   TrendingUp,
+  Home,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -17,8 +18,21 @@ const navItems = [
 ];
 
 export default function RootLayout() {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Mobile top bar with home button */}
+      <div className="sm:hidden sticky top-0 z-40 bg-gray-50 dark:bg-gray-900 px-4 py-2">
+        <button
+          onClick={() => navigate('/dashboard')}
+          className="w-9 h-9 rounded-xl flex items-center justify-center"
+          style={{ backgroundColor: 'rgba(30, 111, 92, 0.1)' }}
+        >
+          <Home className="w-5 h-5" style={{ color: 'var(--color-primary)' }} />
+        </button>
+      </div>
+
       <div className="max-w-2xl mx-auto pb-20">
         <Outlet />
       </div>
