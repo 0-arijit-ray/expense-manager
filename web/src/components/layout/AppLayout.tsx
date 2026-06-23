@@ -49,14 +49,22 @@ export default function AppLayout() {
           <header className="lg:hidden sticky top-0 z-20 flex items-center h-14 px-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
             <button
               onClick={() => navigate('/dashboard')}
-              className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-              style={{ backgroundColor: 'rgba(30, 111, 92, 0.1)' }}
+              className="flex items-center gap-2 shrink-0 cursor-pointer"
             >
-              <Home className="w-5 h-5" style={{ color: 'var(--color-primary)' }} />
+              <div
+                className="w-9 h-9 rounded-xl flex items-center justify-center"
+                style={{ backgroundColor: 'rgba(30, 111, 92, 0.1)' }}
+              >
+                <Home className="w-5 h-5" style={{ color: 'var(--color-primary)' }} />
+              </div>
+              <span className="font-semibold text-sm text-gray-900 dark:text-white">
+                Ease Your Finance
+              </span>
             </button>
+            <div className="flex-1" />
             <button
               onClick={() => setMobileOpen(true)}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ml-1"
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
               <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </button>
